@@ -1,83 +1,39 @@
-# Saint and Poom: handoff
+# Team contribution and implementation handoff
 
-Status: Saint-confirmed proposal, pending Poom review, recorded on 12 November 2026. Implementation is pending. Use [POOM-REVIEW.md](POOM-REVIEW.md) to record Poom's decisions. Read [FRONTEND-PLAN.md](FRONTEND-PLAN.md) before starting code.
-Requirements are in [DELIVERABLES.md](DELIVERABLES.md). API details are in [API.md](API.md).
+This guide defines the proposed work split, review duties, and implementation handoff. The team must accept shared interfaces before both workstreams depend on them.
 
-## Proposed work split for review
+## Proposed ownership
 
-| Owner | Work |
+| Owner | Main work |
 |---|---|
-| Saint | Public catalog and details, account forms, auth state, member rentals, Figma and slides |
-| Poom | Admin equipment, admin rentals, backend copy, hosting decision, booking, deployment and MCV |
-| Both | Shared interfaces, integration, review, tests and demo |
+| Saint | Public equipment catalog and details, account forms, auth state, member rentals, and first drafts of shared interfaces |
+| Poom | Backend copy, admin equipment and rental pages, shared demo setup, hosting choice, booking, deployment, and submission logistics |
+| Both | Shared interface review, integration, code review, acceptance checks, and demo preparation |
 
-Saint starts the shared types, API wrapper, auth provider, and rental form interfaces from the frontend plan.
-Poom reviews these interfaces before building admin pages. Poom reuses the rental form for admin edits.
-Both members write code and run checks. Neither member owns only the presentation.
+Both members contribute code and review each other's work. The named owner coordinates each task and raises blockers early.
 
-## Saint-confirmed proposal for review
+## Shared work rules
 
-The choices below are Saint's confirmed proposal. They remain pending Poom's review; this handoff does not record Poom's approval.
+- Agree on shared types, API function behavior, and auth state before feature code depends on them.
+- Use the backend field names and access rules in [API.md](API.md).
+- Reuse rental and equipment forms for their create and edit paths.
+- Keep backend authorization in force. A hidden button does not protect data.
+- Keep each member's local backend data separate. Poom coordinates the shared demo setup.
+- Keep required behavior in [REQUIREMENTS.md](REQUIREMENTS.md) and submission steps in [SUBMISSION.md](SUBMISSION.md).
+- For each change, the author runs the relevant checks. The other member reviews the change and its actual results.
+- Record unresolved issues with an owner and next action in the task or pull request.
 
-Use one repository with `frontend/`, `backend/`, and `docs/`. Put all course PDFs in `docs/pdf/`.
-Use Next.js App Router, TypeScript, English, plain HTML inside React, and Tailwind classes when needed.
-Complete required features before extras. Reuse the rental and equipment forms for their create/edit flows.
+## Implementation handoff
 
-Keep login in `sessionStorage` for the current tab. Restore it after refresh and clear it on logout or HTTP 401.
-Sign the user in after registration. Members can continue a pending rental.
-Show the assignment's member/admin role selector. Use prepared test accounts for the demo.
+The implementation handoff is ready only when both members accept the shared interfaces and one real member rental path passes against the backend. A real path includes signing in as a member, creating a rental, and seeing it in the member's list. Record the test action and result with the implementation work.
 
-Each member runs a local backend with separate development data.
-Poom owns the shared demo setup and decides its hosting. Keep this decision open.
-The [deployment research](DEPLOYMENT-OPTIONS.md) covers one-project and two-project Vercel options.
-Neither option is tested or selected. The actual deployment URL is pending.
-
-## Implementation handoff requirement
-
-Saint drafts the shared API, types, auth and rental form interfaces. Poom reviews them.
-Design review may finish before coding. The implementation handoff needs interfaces accepted by both members and one passing member rental path.
-Both members review Figma, slides, booking details, deployment and the final submission.
+Reviewing a design or plan does not satisfy this handoff condition. Do not build dependent admin integration until the shared interfaces are accepted and the member path passes.
 
 ## Build order
 
-1. Agree on shared types, API functions and auth state.
-2. Connect catalog, details, login and member rental creation.
-3. Add member view, edit and delete.
+1. Review and accept shared types, API functions, and auth state.
+2. Connect public equipment browsing, account access, and one complete member rental path.
+3. Add member rental view, edit, and delete actions.
 4. Add admin equipment and rental actions.
-5. Run the checks below and rehearse the demo.
-6. Complete the submission checklist in DELIVERABLES.md.
-
-## Checks to record
-
-These checks are pending. A document or Figma screen is not a passing test.
-
-- Register all five fields and sign in automatically. Test member/admin routing.
-- Log in, refresh, log out, close the tab, and handle an expired token.
-- Allow public equipment browsing. Restrict equipment changes to admins.
-- Allow members to create, view, edit and delete own rentals only.
-- Allow admins to view, edit and delete any rental. Block admin rental creation.
-- Test invalid dates, past starts, reversed dates, quantity limits and the seven-day limit.
-- Test same-day and exactly-seven-day rentals against the API.
-- Test equipment add, update and delete, including duplicate names and invalid numbers.
-- Keep old rentals readable after equipment deletion. Select active equipment before editing them.
-- Keep stock unchanged after rental changes. Test overlapping requests.
-- Show loading, empty lists, errors and success. Keep entered values after errors.
-- Return edits to the correct member or admin list.
-- Test the deployed frontend and backend together, including CORS.
-
-For each completed task, record the owner, commit or PR, test action, and actual result.
-The other member reviews it. Record failures and remaining work too.
-
-## UI Flow Design
-
-The [Figma draft](https://www.figma.com/design/llQS6sjdaGY3OpBfXf7NVh/Untitled) has eight main screens and two small delete dialogs.
-The prototype's core paths have been tested: catalog and details; member and admin login; member rental create, edit, and delete; admin equipment add, edit, and delete; and admin rental view, edit, and delete. Member and admin registration have passed. See [UI-FLOWS.md](UI-FLOWS.md) for the exact check receipt.
-
-The prototype uses mock interactions: data does not persist, and member/admin context changes are manual. These checks are design-prototype evidence, not application tests. Export the finished design and attach it to MCV after the flow review is complete.
-
-## Completion status
-
-Requirements and the directory and component plan are documented as a Saint-confirmed proposal pending Poom review. The work split is proposed, not jointly accepted. See [POOM-REVIEW.md](POOM-REVIEW.md) for the review route and decision record.
-The PDF move is complete. Frontend/backend scaffold and backend import are pending. Planned type files are not created. This update changes documentation only.
-Application code, integration tests, deployment, booking, and MCV submission are not complete.
-This handoff does not record a passing demo or a submission receipt.
+5. Run the acceptance cases in [POOM-REVIEW.md](POOM-REVIEW.md), then rehearse the demo.
+6. Complete the submission steps in [SUBMISSION.md](SUBMISSION.md).

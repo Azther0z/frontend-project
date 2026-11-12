@@ -1,65 +1,67 @@
-# Poom design review
+# Design and implementation review criteria
 
-Status: Saint-confirmed proposal, pending Poom review. No Poom decision is recorded here. This is a review of the proposed design and work split, not approval to start the implementation handoff.
+Use this guide to review the requirements, shared contracts, and implementation. Review findings must name the affected requirement or interface and state the change or evidence needed. This guide does not record a review decision.
 
-## Reading route
+## Review route
 
-Read the documents in this order. The system diagram, shared contract summary, and UI flow notes are expected review artifacts; if one is not available at its link, mark that item blocked and ask for the artifact rather than infer its contents.
+Read these documents when reviewing the design and shared boundaries:
 
-1. [DELIVERABLES.md](DELIVERABLES.md) — required behavior and submission requirements.
-2. [SYSTEM-DESIGN.md](SYSTEM-DESIGN.md) — proposed system boundaries and diagram.
-3. [FRONTEND-PLAN.md](FRONTEND-PLAN.md) — routes, components, state, and screen reuse.
-4. [SHARED-CONTRACTS.md](SHARED-CONTRACTS.md) — shared interfaces and their callers.
-5. [API.md](API.md) — pinned backend routes, fields, access rules, and known limitations.
-6. [UI-FLOWS.md](UI-FLOWS.md) — screen flow and prototype review. Also inspect the [Figma draft](https://www.figma.com/design/llQS6sjdaGY3OpBfXf7NVh/Untitled).
-7. [DEPLOYMENT-OPTIONS.md](DEPLOYMENT-OPTIONS.md) — hosting choices and the open hosting decision.
+1. [REQUIREMENTS.md](REQUIREMENTS.md) for required behavior.
+2. [SYSTEM-DESIGN.md](SYSTEM-DESIGN.md) for frontend, backend, and database boundaries.
+3. [FRONTEND-PLAN.md](FRONTEND-PLAN.md) for routes, components, and state ownership.
+4. [SHARED-CONTRACTS.md](SHARED-CONTRACTS.md) for data types and API function shapes.
+5. [API.md](API.md) for backend routes, fields, and access rules.
+6. [DEPLOYMENT-OPTIONS.md](DEPLOYMENT-OPTIONS.md) for hosting choices.
 
-For the TypeScript shapes, inspect the planned files in `frontend/src/types/`: `user.ts`, `equipment.ts`, `rental.ts`, and `api.ts`. Check each against its actual callers in `frontend/src/lib/api/` and the backend contract in `API.md`; the plan currently says these files have not been created.
+Review the actual source files and callers when implementation exists. A plan alone does not prove that code follows the plan.
 
-## Four review items
+## Review criteria
 
-For each item, choose **Accept**, **Change**, or **Blocked**. “Accept” records agreement with that proposal only. Add a concrete change or missing evidence when needed. Do not reopen a selected choice unless it conflicts with a requirement, the pinned API, or another review artifact.
+### Requirements and system boundaries
 
-### 1. Requirements and system design
+- Make sure that each required member and admin action in `REQUIREMENTS.md` has a matching route and backend operation.
+- Make sure that public users can browse active equipment.
+- Make sure that only admins can add, update, or remove equipment.
+- Make sure that members can manage only their own rentals.
+- Make sure that admins can view and manage rentals but cannot create rentals.
+- Make sure that the backend enforces each access rule.
 
-Check that the system design covers the required member and admin behavior in [DELIVERABLES.md](DELIVERABLES.md), and that its diagram matches the planned frontend, backend, and database boundaries. Check the caller/API role boundary: public equipment reads, member-owned rental operations, admin rental access, admin-only equipment changes, and no admin rental creation.
+### Frontend behavior
 
-- Decision: ______ (Accept / Change / Blocked)
-- Change or evidence needed: ______
+- Make sure that catalog, equipment details, account, member rentals, admin equipment, and admin rentals have clear routes.
+- Make sure that create and edit use the same rental form and the same equipment form.
+- Make sure that pages show loading, empty, error, and success states.
+- Make sure that forms keep entered values after an API error and prevent duplicate submits while a request runs.
+- Make sure that login returns to a safe internal route and preserves the requested equipment when a member starts a rental.
+- Make sure that edits return to the correct member or admin list.
 
-### 2. Frontend plan and eight screen flows
+### Shared contracts and API boundary
 
-Check the eight main designs and their route reuse against the table in [FRONTEND-PLAN.md](FRONTEND-PLAN.md): catalog, equipment details, account, rental form, my rentals, admin equipment, equipment form, and admin rentals. The rental form and equipment form reuse create/edit designs; deletion uses confirmation dialogs. Check loading, empty, error, and success states, and the login return path for a requested equipment item.
+- Make sure that `user.ts`, `equipment.ts`, `rental.ts`, and `api.ts` match their actual callers and [API.md](API.md).
+- Make sure that `id` in login and registration responses differs from `_id` in `/auth/me` and database records.
+- Make sure that frontend state uses one form of the user identifier.
+- Make sure that rental input sends an equipment ID in the field named `equipment`.
+- Make sure that read data and request input use the correct backend fields and date formats.
+- Make sure that protected API calls send the bearer token and handle 401 and 403 responses differently.
+- Make sure that the backend remains the authority for access decisions.
 
-The core prototype paths have been tested: catalog/details, member/admin login, member rental create/edit/delete, admin equipment add/edit/delete, and admin rental view/edit/delete. Member and admin registration have passed. See [UI-FLOWS.md](UI-FLOWS.md) for the exact receipt. The prototype uses mock interactions: data does not persist, and member/admin context changes are manual. These checks do not verify the application implementation.
+### Acceptance cases
 
-- Decision: ______ (Accept / Change / Blocked)
-- Change or evidence needed: ______
+Use these cases to review implementation. Record the action and actual result with the code change. A passing result must come from the running application and backend.
 
-### 3. Shared contracts and backend boundary
+- Register with all required fields, sign in, refresh the page, sign out, and close the tab. Test member and admin routing and expired-token handling.
+- Browse equipment without signing in. Make sure that equipment changes require an admin.
+- As a member, create, view, edit, and delete the member's own rentals. Make sure that another member's rental stays inaccessible.
+- As an admin, view, edit, and delete rentals. Make sure that admin rental creation is unavailable and rejected by the backend.
+- Test rental quantities, past start dates, reversed dates, same-day rentals, exactly seven elapsed days, and rentals longer than seven days.
+- Test equipment creation, update, and removal, including duplicate names and invalid numbers.
+- Make sure that existing rentals remain readable after equipment removal and that an edit can select active equipment.
+- Make sure that rental changes do not change equipment stock. Test overlapping requests against the backend's stated behavior.
+- Test loading, empty, error, and success states. Make sure that a failed submit keeps the entered values.
+- Test the frontend and backend together in the chosen deployment, including CORS and the configured API URL.
 
-Review the proposed `user.ts`, `equipment.ts`, `rental.ts`, and `api.ts` shapes and API function signatures in [SHARED-CONTRACTS.md](SHARED-CONTRACTS.md). These planned source files do not exist yet. Confirm auth input/response shapes and token handling; distinguish login/register `id` from `/auth/me` and record `_id`, and check the frontend normalization; use backend field names; ensure `RentalInput.equipment` carries the equipment ID; and check the caller role and authorization expectations for each API function against [API.md](API.md). The backend, not hidden UI controls, enforces access.
+## Ownership and handoff
 
-- Decision: ______ (Accept / Change / Blocked)
-- Change or evidence needed: ______
+Use the proposed owners and review duties in [CONTRIBUTION-HANDOFF.md](CONTRIBUTION-HANDOFF.md). The implementation handoff requires both members to accept the shared interfaces and one real member rental path to pass.
 
-### 4. Ownership and implementation handoff
-
-Review the proposed owners in [CONTRIBUTION-HANDOFF.md](CONTRIBUTION-HANDOFF.md) and [FRONTEND-PLAN.md](FRONTEND-PLAN.md). Check that Saint's shared interface draft and Poom's admin integration responsibilities are clear, along with backend copy, hosting decision, booking, deployment, and submission ownership. Design approval can be recorded before code exists. The implementation handoff is a later gate: interfaces must be accepted by both members and one complete member rental path must pass, with its actual result recorded.
-
-- Decision: ______ (Accept / Change / Blocked)
-- Change or evidence needed: ______
-
-## Separate decision: hosting
-
-Hosting remains delegated to Poom and open. Review the two documented Vercel layouts and record the selected option, reason, frontend/backend URLs, and test result in [DEPLOYMENT-OPTIONS.md](DEPLOYMENT-OPTIONS.md). This hosting decision is not implied by accepting the four design items.
-
-- Decision: ______ (Option 1 / Option 2 / Keep open)
-- Reason or follow-up: ______
-
-## Review record
-
-- Reviewer: Poom
-- Review date: ______
-- Summary / remaining changes: ______
-- Implementation handoff ready: ______ (only after accepted shared interfaces and a passing member rental path are recorded)
+Poom coordinates the hosting choice and shared demo setup. Record the selected layout and URLs in [DEPLOYMENT-OPTIONS.md](DEPLOYMENT-OPTIONS.md) when the team makes that decision. Keep submission steps in [SUBMISSION.md](SUBMISSION.md).

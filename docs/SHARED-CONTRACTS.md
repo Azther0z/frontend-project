@@ -1,13 +1,8 @@
 # Shared contracts
 
-Proposed TypeScript contracts for Poom to review before implementation. The
-field shapes below follow the pinned backend; the app and API files remain
-uncreated, and these component boundaries are proposals pending agreement.
+These TypeScript contracts describe the planned frontend data and component interfaces. The field shapes follow the pinned backend at commit [`be18df9`](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent/tree/be18df9967be7e0a742b5a5ae25f07966dc4e1d4).
 
-The backend uses MongoDB IDs as strings in JSON. Login and registration responses use `id`; `/auth/me` uses `_id`;
-equipment and rental records use `_id`. Keep request data separate from read
-data. Rental input sends an ID in the field named `equipment`. Date inputs are
-`YYYY-MM-DD`; dates returned by the API are ISO date-time strings.
+The backend sends MongoDB IDs as strings in JSON. Login and registration responses use `id`. `/auth/me`, equipment records, and rental records use `_id`. Keep request data separate from read data. Rental input sends an ID in the field named `equipment`. Date inputs use `YYYY-MM-DD`. Dates returned by the API are ISO date-time strings.
 
 ## Domain and request types
 
@@ -108,16 +103,9 @@ export interface RentalInput {
 export type RentalUpdate = Partial<RentalInput>;
 ```
 
-`Rental.equipment` and `Rental.user` may be `null` if a referenced record no
-longer exists. The backend's successful rental reads populate both references.
-Login and registration return a safe user object with `id` and no `tel`;
-`/auth/me` returns a Mongoose user with `_id`, `tel`, and `createdAt`. Keep
-`AuthUser` as the normalized frontend state shape and map `_id` to `id` when
-restoring the session. `Equipment` and `Rental` have `createdAt` and `updatedAt`
-because their Mongoose schemas enable timestamps.
-An update omits unchanged fields; the equipment key remains `equipment`, not
-`equipmentID`. Equipment and rental update functions take partial inputs, while
-the reusable forms submit complete values.
+`Rental.equipment` uses `RentalEquipment`, and `Rental.user` uses `RentalUser`. Either reference can be `null` if its record no longer exists. Successful rental reads populate both references. Login and registration return a safe user object with `id` and no `tel`. `/auth/me` returns a Mongoose user with `_id`, `tel`, and `createdAt`. Keep `AuthUser` as the normalized frontend state shape and map `_id` to `id` when restoring the session. `Equipment` and `Rental` have `createdAt` and `updatedAt` because their Mongoose schemas enable timestamps.
+
+An update omits unchanged fields. The equipment key remains `equipment`, not `equipmentID`. Equipment and rental update functions take partial inputs. Reusable forms submit complete values.
 
 ## API response and function shapes
 
@@ -174,12 +162,7 @@ export declare const rentalsApi: {
 };
 ```
 
-These are proposed return-value signatures; the route paths are listed in [API.md](API.md).
-Protected calls receive the token and send `Authorization: Bearer <token>`.
-The backend returns `{ success: false, error: string }`; normalize it to
-`ApiError` with the HTTP status and readable message. A 401 clears the context
-and session storage. A 403 stays an access error. Backend authorization remains
-the authority; hiding a control is not access control.
+The route paths are listed in [API.md](API.md). Protected calls receive the token and send `Authorization: Bearer <token>`. The backend returns `{ success: false, error: string }`. Normalize this response to `ApiError` with the HTTP status and readable message. A 401 clears the context and session storage. A 403 stays an access error. Backend authorization remains the authority. Hiding a control is not access control.
 
 ## Auth context and components
 
@@ -244,11 +227,4 @@ export interface RentalListProps {
 }
 ```
 
- Pages own loading, API calls, navigation, and refresh after a successful
-change. Forms own their field state and report complete values; page callbacks
-call the API and keep values visible on failure. `AccessGuard` waits while
-`loading` is true, then renders its children for an allowed signed-in role. For
-no user, show the sign-in path; for a signed-in disallowed role, show an access
-message. Member rental screens pass `roles={["member"]}`; the admin layout
-passes `roles={["admin"]}`. The API has no approval state, rental status, or
-pagination contract, so these interfaces add none.
+Pages own loading, API calls, navigation, and refresh after a successful change. Forms own their field state and report complete values. Page callbacks call the API and keep values visible after a failure. `AccessGuard` waits while `loading` is true, then renders its children for an allowed signed-in role. For no user, show the sign-in path. For a signed-in user with a disallowed role, show an access message. Member rental screens pass `roles={["member"]}`. The admin layout passes `roles={["admin"]}`. The API has no approval state, rental status, or pagination contract, so these interfaces add none.

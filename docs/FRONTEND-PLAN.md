@@ -1,191 +1,114 @@
 # Frontend plan
 
-Saint confirmed this proposal on 12 November 2026; Poom's review is pending. The app folders, components, and planned type files do not exist yet.
-Read the [Poom review](POOM-REVIEW.md) and [handoff](CONTRIBUTION-HANDOFF.md) with this plan.
+This document defines the planned Next.js and TypeScript frontend. The application code and its shared type files are planned. See [requirements](REQUIREMENTS.md) for required system behavior, [API](API.md) for the backend contract, [shared contracts](SHARED-CONTRACTS.md) for TypeScript shapes, and [deployment options](DEPLOYMENT-OPTIONS.md) for the open hosting choice.
 
-## Basic choices
+## Technology and structure
 
-Use Next.js App Router and TypeScript. Use English and plain HTML elements inside React.
-Add Tailwind classes in `className` when needed. Start with the required features.
-Use `fetch` for API calls. Keep form state inside each form. Redux is not required for this plan.
-
-## Directory structure
+Use Next.js App Router and TypeScript. Use English and semantic HTML elements in React. Add Tailwind utility classes in `className` when styling is needed. Use `fetch` for API calls. Keep form state in each form. Redux is not required.
 
 ```text
-frontend-project/
-├── frontend/                       # Next.js app
-│   ├── src/
-│   │   ├── app/                         # URL routes
-│   │   │   ├── layout.tsx               # App shell and AuthProvider
-│   │   │   ├── globals.css
-│   │   │   ├── page.tsx                 # Equipment catalog: /
-│   │   │   ├── equipment/[id]/page.tsx  # Equipment details
-│   │   │   ├── account/page.tsx         # Login and register tabs
-│   │   │   ├── rentals/
-│   │   │   │   ├── page.tsx             # My Rentals
-│   │   │   │   ├── new/page.tsx         # Create a rental
-│   │   │   │   └── [id]/edit/page.tsx    # Edit own rental
-│   │   │   └── admin/
-│   │   │       ├── layout.tsx           # Admin access guard
-│   │   │       ├── equipment/
-│   │   │       │   ├── page.tsx         # Manage equipment
-│   │   │       │   ├── new/page.tsx     # Add equipment
-│   │   │       │   └── [id]/edit/page.tsx
-│   │   │       └── rentals/
-│   │   │           ├── page.tsx         # All Rentals
-│   │   │           └── [id]/edit/page.tsx
-│   │   ├── components/
-│   │   │   ├── shared/                 # AppNav, AccessGuard, ConfirmDialog, Feedback
-│   │   │   ├── auth/                   # AuthProvider, AccountTabs, LoginForm, RegisterForm
-│   │   │   ├── equipment/              # EquipmentList, EquipmentCard, EquipmentDetails, EquipmentForm
-│   │   │   └── rentals/                # RentalList, RentalDetails, RentalForm
-│   │   ├── lib/
-│   │   │   ├── api/
-│   │   │   │   ├── client.ts           # Base URL, bearer token, JSON and errors
-│   │   │   │   ├── auth.ts             # Register, login, me, logout
-│   │   │   │   ├── equipment.ts        # List, get, create, update, delete
-│   │   │   │   └── rentals.ts          # List, get, create, update, delete
-│   │   │   └── validation.ts           # Shared form rules
-│   │   └── types/                      # Planned shared TypeScript contracts
-│   │       ├── user.ts                 # User, Role, LoginInput, RegisterInput
-│   │       ├── equipment.ts            # Equipment, EquipmentInput
-│   │       ├── rental.ts               # Rental, RentalInput; imports User and Equipment response objects
-│   │       └── api.ts                  # Shared success, list, and error responses
-│   ├── public/                     # Static images
-│   ├── package.json                # Frontend dependencies and scripts
-│   └── .env.example                # Public API base URL
-├── backend/                        # Copy of the supplied Express backend
-│   ├── controllers/
-│   ├── models/
-│   ├── routes/
-│   ├── middleware/
-│   ├── server.js
-│   └── package.json                # Backend dependencies and scripts
-├── docs/
-│   ├── pdf/                        # All course PDFs, with original names
-│   ├── DELIVERABLES.md
-│   ├── SYSTEM-DESIGN.md
-│   ├── FRONTEND-PLAN.md
-│   ├── SHARED-CONTRACTS.md
-│   ├── API.md
-│   ├── UI-FLOWS.md
-│   ├── POOM-REVIEW.md
-│   ├── CONTRIBUTION-HANDOFF.md
-│   └── DEPLOYMENT-OPTIONS.md        # Research for Poom's hosting decision
-└── README.md
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx
+│   │   ├── globals.css
+│   │   ├── page.tsx
+│   │   ├── equipment/[id]/page.tsx
+│   │   ├── account/page.tsx
+│   │   ├── rentals/page.tsx
+│   │   ├── rentals/new/page.tsx
+│   │   ├── rentals/[id]/edit/page.tsx
+│   │   └── admin/
+│   │       ├── layout.tsx
+│   │       ├── equipment/page.tsx
+│   │       ├── equipment/new/page.tsx
+│   │       ├── equipment/[id]/edit/page.tsx
+│   │       ├── rentals/page.tsx
+│   │       └── rentals/[id]/edit/page.tsx
+│   ├── components/
+│   │   ├── shared/       # AppNav, AccessGuard, ConfirmDialog, Feedback
+│   │   ├── auth/         # AuthProvider, AccountTabs, LoginForm, RegisterForm
+│   │   ├── equipment/    # EquipmentList, EquipmentCard, EquipmentDetails, EquipmentForm
+│   │   └── rentals/      # RentalList, RentalDetails, RentalForm
+│   ├── lib/
+│   │   ├── api/          # client.ts, auth.ts, equipment.ts, rentals.ts
+│   │   └── validation.ts
+│   └── types/            # user.ts, equipment.ts, rental.ts, api.ts
+├── public/
+├── package.json
+└── .env.example
 ```
 
-This is the planned application layout. The guides and all 18 course PDFs have been moved into `docs/` and `docs/pdf/`, preserving PDF names and contents. Frontend/backend scaffold and imports remain pending.
-Keep each app's dependencies, lockfile, and configuration separate. Do not add workspace tools yet.
-Keep private environment values in ignored files.
+Keep frontend and backend dependencies, lockfiles, and configuration separate. Keep private environment values in ignored files. `NEXT_PUBLIC_API_BASE_URL` contains the API origin without `/api/v1`; it contains no secrets. For one-domain routing, use an empty base URL and relative `/api/v1` requests.
 
-Poom owns the backend copy. Start from commit `be18df9967be7e0a742b5a5ae25f07966dc4e1d4` of the supplied repository.
-Record its source and revision, and preserve any license and notices. Exclude `.git`, installed dependencies, and secrets.
-Backend updates from the source repository are manual.
+The backend copy belongs to Poom. Use the supplied repository at commit [`be18df9`](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent/tree/be18df9967be7e0a742b5a5ae25f07966dc4e1d4). Record its source and revision, preserve its license and notices, and exclude `.git`, installed dependencies, and secrets. Apply later backend updates manually.
 
-## Routes and screen reuse
+## Routes and components
 
-The eight Figma screens describe eight UI designs. Create and edit URLs reuse the same design and component. See [UI-FLOWS.md](UI-FLOWS.md) for the current prototype check receipt and limitations.
+| Screen | URL | Main component |
+|---|---|---|
+| Equipment catalog | `/` | `EquipmentList` |
+| Equipment details | `/equipment/[id]` | `EquipmentDetails` |
+| Account | `/account` | `AccountTabs` |
+| My rentals | `/rentals` | `RentalList` |
+| Rental form | `/rentals/new`, `/rentals/[id]/edit`, `/admin/rentals/[id]/edit` | `RentalForm` |
+| Admin equipment | `/admin/equipment` | `EquipmentList` with admin actions |
+| Equipment form | `/admin/equipment/new`, `/admin/equipment/[id]/edit` | `EquipmentForm` |
+| Admin rentals | `/admin/rentals` | `RentalList` with member details |
 
-| Screen | URL | Main component | Owner |
-|---|---|---|---|
-| Equipment Catalog | `/` | `EquipmentList` | Saint |
-| Equipment Details | `/equipment/[id]` | `EquipmentDetails` | Saint |
-| Account | `/account` | `AccountTabs` | Saint |
-| Rental Form | `/rentals/new`, `/rentals/[id]/edit`, `/admin/rentals/[id]/edit` | `RentalForm` | Saint, then Poom integrates admin use |
-| My Rentals | `/rentals` | `RentalList` | Saint |
-| Admin Equipment | `/admin/equipment` | `EquipmentList` with admin actions | Poom |
-| Equipment Form | `/admin/equipment/new`, `/admin/equipment/[id]/edit` | `EquipmentForm` | Poom |
-| Admin Rentals | `/admin/rentals` | `RentalList` with member details | Poom |
+Create and edit URLs reuse the same form component. Show rental details inside the list. Use `ConfirmDialog` before deletion. Show loading, empty, error, and success states in the current screen. Do not add admin rental creation because the backend allows only members to create rentals.
 
-Show rental details inside the list. Use `ConfirmDialog` for deletion.
-Show loading, empty lists, errors, and success inside the current screen.
-Do not add admin rental creation. The backend allows only members to create rentals.
-
-## Component rules
-
-A prop is a value that a parent passes to a component. A callback lets a child report an action to its parent.
-Pages load data and call the API. Forms collect values and report them through callbacks.
-Member rental pages use `AccessGuard` with `member`. The admin layout uses it with `admin`.
+A prop is a value that a parent passes to a component. A callback lets a child report an action to its parent. Pages load data and call the API. Forms collect values and report them through callbacks.
 
 | Component | Inputs | Job |
 |---|---|---|
 | `AppNav` | Current user, logout callback | Show links for the current role |
-| `AuthProvider` | Child components | Share the user, token, loading state, login and logout functions |
+| `AuthProvider` | Child components | Share user, token, loading state, login, registration, and logout functions |
 | `AccessGuard` | Allowed roles, children | Wait for the user, then show content or an access message |
 | `AccountTabs` | Safe return path | Switch between login and registration |
 | `LoginForm` | Submit callback, pending state, error | Collect email and password |
-| `RegisterForm` | Submit callback, pending state, error | Collect name, email, tel, role and password |
+| `RegisterForm` | Submit callback, pending state, error | Collect name, email, telephone, role, and password |
 | `EquipmentList` | Items, optional admin callbacks | Show equipment and permitted actions |
-| `EquipmentCard` | One item, details link | Show a catalog item |
+| `EquipmentCard` | One item, details link | Show one catalog item |
 | `EquipmentDetails` | One item, request link | Show all equipment fields |
-| `EquipmentForm` | Add/edit mode, initial values, submit callback, pending state, error | Reuse equipment fields and validation |
-| `RentalList` | Rentals, member/admin mode, view/edit/delete callbacks | Show own requests or all requests |
-| `RentalDetails` | One rental | Show equipment, dates, quantity and member details when allowed |
-| `RentalForm` | Create/edit mode, equipment choices, initial values, submit callback, pending state, error | Reuse rental fields and validation |
+| `EquipmentForm` | Mode, initial values, submit callback, pending state, error | Reuse equipment fields and validation |
+| `RentalList` | Rentals, member or admin mode, view/edit/delete callbacks | Show the user's requests or all requests |
+| `RentalDetails` | One rental | Show equipment, dates, quantity, and allowed member details |
+| `RentalForm` | Mode, equipment choices, initial values, submit callback, pending state, error | Reuse rental fields and validation |
 | `ConfirmDialog` | Open state, title, message, pending state, confirm/cancel callbacks | Ask before deletion |
-| `Feedback` | Loading/error/success state, message | Show feedback in the current screen |
+| `Feedback` | Loading, error, or success state and message | Show feedback in the current screen |
 
-Keep submit buttons disabled while a request runs. Keep entered values after an API error.
-Use labels for fields and native buttons, links, forms, and dialogs.
-The backend must enforce access. Hiding a button does not protect data.
+Keep submit buttons disabled while a request runs. Keep entered values after an API error. Use labels, native buttons, links, forms, and dialogs. The backend must enforce access because hiding a button does not protect data.
 
 ## Data and state
 
-Use the backend field names in [API.md](API.md). Convert number inputs to numbers before submission.
-Keep date inputs as `YYYY-MM-DD` strings. Keep display data separate from request inputs.
-`user.ts` defines `User`, `Role`, `LoginInput`, and `RegisterInput`.
-`equipment.ts` defines `Equipment` and `EquipmentInput`.
-`rental.ts` defines `Rental` and `RentalInput`. It imports `User` and `Equipment` for response objects.
-`RentalInput` sends the equipment ID in the backend field named `equipment`.
-`api.ts` defines shared success, list, and error response types.
-For example, a list response has `success`, `data`, and `count`. It can contain equipment or rentals.
-Request functions live in `lib/api/`. The type files only describe data shapes.
-These four type files are planned and have not been created. Their proposed shapes and callers are recorded in [SHARED-CONTRACTS.md](SHARED-CONTRACTS.md); Poom's review is pending.
+Use the backend field names in [API.md](API.md). Convert number inputs to numbers before submission. Keep date inputs as `YYYY-MM-DD` strings. Keep display data separate from request inputs.
 
-Use React context for auth state and `sessionStorage` for the token. Login survives refresh in the same tab.
-Closing the tab ends the stored login. Do not add another token store in a feature component.
-After the browser loads, restore the token and call `/auth/me` before showing protected content.
-Both login and registration store the returned token and sign the user in.
-Registration shows the member/admin role selector required by the assignment. Use prepared test accounts for the demo.
-`AuthProvider` exposes `user`, `token`, `loading`, `login`, `register`, and `logout`.
-API functions receive the token as an argument. `client.ts` adds `Authorization: Bearer <token>`.
+The planned type files define `User`, `Role`, `LoginInput`, and `RegisterInput` in `user.ts`. The `equipment.ts` file defines `Equipment` and `EquipmentInput`. The `rental.ts` file defines `Rental` and `RentalInput`. The `api.ts` file defines shared success, list, and error responses. `RentalInput.equipment` contains the equipment ID. `Rental.equipment` uses the populated `RentalEquipment` shape, and `Rental.user` uses `RentalUser`. Either populated reference can be `null`. Do not substitute the normalized `User` or full `Equipment` types for these nested rental response shapes. The field definitions are in [SHARED-CONTRACTS.md](SHARED-CONTRACTS.md).
 
-Use `NEXT_PUBLIC_API_BASE_URL` for a separate backend origin, without `/api/v1`.
-For a single-domain deployment, use an empty base and relative `/api/v1` requests.
-Poom decides the hosting layout and URL. Read [deployment options](DEPLOYMENT-OPTIONS.md).
-The API wrapper adds the route prefix. This URL contains no secrets.
-After login or registration, accept only known internal return routes. Send admins to `/admin/equipment` and members to `/rentals` by default.
-The equipment request link uses `/rentals/new?equipment=<id>`. Keep this choice through login or registration.
-Only members resume rental creation. Send admins to Admin Equipment.
-After create, go to My Rentals. After edit, return to the matching member or admin list.
-After logout or HTTP 401, clear the token from context and `sessionStorage`, and clear the user. Show HTTP 403 as an access error.
+Keep request functions in `lib/api/`. Type files describe data shapes only. Equipment and rental update functions accept partial inputs. Reusable forms submit complete values.
+
+Use React context for authentication state and `sessionStorage` for the token. The token lasts for the current tab. After the browser loads, restore the token and call `/auth/me` before protected content appears. Normalize `/auth/me` data by mapping `_id` to `id` for `AuthUser`. Login and registration store the returned token and sign in the user. Registration includes the required member/admin role selector. Use prepared test accounts for the demo.
+
+`AuthProvider` exposes `user`, `token`, `loading`, `login`, `register`, and `logout`. API functions receive the token as an argument. `client.ts` adds `Authorization: Bearer <token>`. After logout or HTTP 401, clear the token from context and `sessionStorage`, and clear the user. Show HTTP 403 as an access error.
+
+After login or registration, accept only known internal return routes. Send admins to `/admin/equipment` and members to `/rentals` by default. The equipment request link uses `/rentals/new?equipment=<id>`. Keep this choice through login or registration. Only members resume rental creation. Send admins to Admin Equipment. After create, go to My Rentals. After edit, return to the matching member or admin list.
 
 ## React boundaries
 
-Keep route files small. Put forms, dialogs, auth context, and browser data loaders in Client Components with `"use client"`.
-Keep the root layout as a Server Component. It renders the client `AuthProvider` around the page content.
-Do not read browser token state during server rendering. Load protected data only after auth is ready.
+Keep route files small. Put forms, dialogs, authentication context, and browser data loaders in Client Components with `"use client"`. Keep the root layout as a Server Component. It renders the client `AuthProvider` around page content.
 
-Use one source of state for each value. Do not store a separate copy of the same rental in several components.
-After a successful change, reload the affected list or detail record from the API.
+Do not read browser token state during server rendering. Load protected data only after authentication is ready. Keep one source of state for each value. After a successful change, reload the affected list or detail record from the API.
 
-## Before the handoff
+## Implementation order
 
-The proposal is that Saint and Poom each run a local backend with separate development data.
-Poom prepares the shared demo backend and database after choosing the hosting layout.
-Saint is proposed to draft the shared types, API wrapper, auth provider, and rental form interfaces.
-Poom reviews them before adding admin screens. Both use the same field names and callbacks.
-Design approval may happen before coding. Implementation handoff requires interfaces accepted by both members and a passing member rental path. Record the actual test result in [CONTRIBUTION-HANDOFF.md](CONTRIBUTION-HANDOFF.md).
+The proposed work split assigns public equipment browsing, accounts, and member rentals to Saint. It assigns admin equipment and rental management, the backend copy, and hosting selection to Poom. Both members handle integration checks and review.
 
-Implement one complete member rental path first. Then connect admin equipment and admin rental paths.
-Record test results in the [handoff](CONTRIBUTION-HANDOFF.md). This plan is not an implementation or test result.
+Draft the shared types, API wrapper, authentication provider, and rental form interfaces first. Poom reviews the interfaces before adding admin screens. Implement one complete member rental path, then connect admin equipment and admin rental paths. Keep actual test results in the contribution handoff.
 
 ## References
 
-- [Next.js folder conventions](https://nextjs.org/docs/app/getting-started/project-structure): `src/app`, layouts and pages.
+- [Next.js folder conventions](https://nextjs.org/docs/app/getting-started/project-structure): `src/app`, layouts, and pages.
 - [Next.js server and client components](https://nextjs.org/docs/app/getting-started/server-and-client-components): interactive components and context providers.
-- [React component planning](https://react.dev/learn/thinking-in-react): split the UI into components and keep shared state in the parent.
-- Course examples: W07 Router Navigation, W06 React State, and W10 Data Posting. See [DELIVERABLES.md](DELIVERABLES.md) for PDF pages.
-
-Official web docs were read on 12 November 2026 because Context7 was unavailable. Package versions remain unset until project setup.
+- [React component planning](https://react.dev/learn/thinking-in-react): component boundaries and shared state.
+- Course examples: [W07 Router Navigation](pdf/W07_Router_Navigation-957520-17888570978209.pdf), [W06 React State](pdf/W06_ReactState-957520-17883323524647.pdf), and [W10 Data Posting](pdf/W10_DataPosting-957520-17913744221453.pdf).

@@ -3,7 +3,6 @@
 An API is the set of requests that the frontend sends to the backend.
 Use the [supplied backend](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent).
 This contract comes from commit [`be18df9`](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent/tree/be18df9967be7e0a742b5a5ae25f07966dc4e1d4).
-It is a code review, not a runtime test.
 
 ## Connection
 
@@ -39,7 +38,7 @@ CORS is the browser rule that controls requests between origins.
 
 Registration uses `{ name, email, tel, password, role }`.
 Role defaults to `member`. This backend also accepts public registration with `role: "admin"`.
-Use this fact when preparing the class demo. It does not provide safe admin account control for public use.
+Public admin registration does not provide safe admin account control for public use.
 
 Equipment uses `{ name, category, description, quantity, rentalRate }`.
 Name is unique. Quantity is a nonnegative integer. Rental rate is nonnegative.
@@ -50,7 +49,7 @@ The backend sets the owner from the token. Updates cannot change the owner.
 Omitted update fields keep their current values.
 
 Rental reads include equipment and user objects. Login and registration use `data.id` for the user ID.
-`GET /auth/me` returns `data._id`; the frontend maps it to its normalized user `id`.
+`GET /auth/me` returns `data._id`. The frontend maps it to its normalized user `id`.
 Equipment and rental records use `_id`. Keep these differences in the shared TypeScript types.
 
 ## Responses

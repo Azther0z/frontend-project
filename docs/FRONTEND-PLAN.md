@@ -1,6 +1,6 @@
 # Frontend plan
 
-Saint and Poom agreed on this plan on 12 November 2026. The app folders and components do not exist yet.
+Saint and Poom agreed on this plan on 12 November 2026. The app folders, components, and planned type files do not exist yet.
 Read this plan before the [handoff](CONTRIBUTION-HANDOFF.md).
 
 ## Basic choices
@@ -46,8 +46,11 @@ frontend-project/
 │   │   │   │   ├── equipment.ts        # List, get, create, update, delete
 │   │   │   │   └── rentals.ts          # List, get, create, update, delete
 │   │   │   └── validation.ts           # Shared form rules
-│   │   └── types/
-│   │       └── api.ts                  # User, Equipment, Rental, inputs and API responses
+│   │   └── types/                      # Planned shared TypeScript contracts
+│   │       ├── user.ts                 # User, Role, LoginInput, RegisterInput
+│   │       ├── equipment.ts            # Equipment, EquipmentInput
+│   │       ├── rental.ts               # Rental, RentalInput; imports User and Equipment response objects
+│   │       └── api.ts                  # Shared success, list, and error responses
 │   ├── public/                     # Static images
 │   ├── package.json                # Frontend dependencies and scripts
 │   └── .env.example                # Public API base URL
@@ -68,9 +71,7 @@ frontend-project/
 └── README.md
 ```
 
-This is the target layout. This documentation update does not move files or import code.
-Move all course PDFs into `docs/pdf/` during repository setup. Keep their original names.
-Move the root guides into `docs/` and update their links during the same step.
+This is the planned application layout. The guides and all 18 course PDFs have been moved into `docs/` and `docs/pdf/`, preserving PDF names and contents. Frontend/backend scaffold and imports remain pending.
 Keep each app's dependencies, lockfile, and configuration separate. Do not add workspace tools yet.
 Keep private environment values in ignored files.
 
@@ -129,7 +130,14 @@ The backend must enforce access. Hiding a button does not protect data.
 
 Use the backend field names in [API.md](API.md). Convert number inputs to numbers before submission.
 Keep date inputs as `YYYY-MM-DD` strings. Keep display data separate from request inputs.
-A rental response contains equipment and user objects. A rental request sends an equipment ID.
+`user.ts` defines `User`, `Role`, `LoginInput`, and `RegisterInput`.
+`equipment.ts` defines `Equipment` and `EquipmentInput`.
+`rental.ts` defines `Rental` and `RentalInput`. It imports `User` and `Equipment` for response objects.
+`RentalInput` sends the equipment ID in the backend field named `equipment`.
+`api.ts` defines shared success, list, and error response types.
+For example, a list response has `success`, `data`, and `count`. It can contain equipment or rentals.
+Request functions live in `lib/api/`. The type files only describe data shapes.
+These four type files are planned and have not been created.
 
 Use React context for auth state and `sessionStorage` for the token. Login survives refresh in the same tab.
 Closing the tab ends the stored login. Do not add another token store in a feature component.
@@ -141,7 +149,7 @@ API functions receive the token as an argument. `client.ts` adds `Authorization:
 
 Use `NEXT_PUBLIC_API_BASE_URL` for a separate backend origin, without `/api/v1`.
 For a single-domain deployment, use an empty base and relative `/api/v1` requests.
-Poom decides the hosting layout and URL. Read [deployment options](docs/DEPLOYMENT-OPTIONS.md).
+Poom decides the hosting layout and URL. Read [deployment options](DEPLOYMENT-OPTIONS.md).
 The API wrapper adds the route prefix. This URL contains no secrets.
 After login or registration, accept only known internal return routes. Send admins to `/admin/equipment` and members to `/rentals` by default.
 The equipment request link uses `/rentals/new?equipment=<id>`. Keep this choice through login or registration.

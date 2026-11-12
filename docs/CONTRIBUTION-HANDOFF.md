@@ -27,7 +27,7 @@ Show the assignment's member/admin role selector. Use prepared test accounts for
 
 Each member runs a local backend with separate development data.
 Poom owns the shared demo setup and decides its hosting. Keep this decision open.
-The [deployment research](docs/DEPLOYMENT-OPTIONS.md) covers one-project and two-project Vercel options.
+The [deployment research](DEPLOYMENT-OPTIONS.md) covers one-project and two-project Vercel options.
 Neither option is tested or selected. The actual deployment URL is pending.
 
 ## Handoff requirement
@@ -80,6 +80,6 @@ Do not submit this draft as the final UI Flow Design. Export the finished design
 ## Completion status
 
 Requirements, the work split, and the directory and component plan are agreed.
-The backend import and PDF moves are planned. This update changes documents only.
+The PDF move is complete. Frontend/backend scaffold and backend import are pending. Planned type files are not created. This update changes documentation only.
 Application code, integration tests, deployment, booking, and MCV submission are not complete.
 This handoff does not record a passing demo or a submission receipt.

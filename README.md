@@ -4,11 +4,11 @@ Course Project 2 is an equipment rental system. This repository holds the projec
 
 ## Read in this order
 
-1. [Frontend plan](FRONTEND-PLAN.md): planned folders, routes and React components.
-2. [Contribution handoff](CONTRIBUTION-HANDOFF.md): team ownership, checks, and open decisions.
-3. [Required deliverables](DELIVERABLES.md): assignment requirements, deadline, grading, and presentation steps.
+1. [Frontend plan](docs/FRONTEND-PLAN.md): planned folders, routes and React components.
+2. [Contribution handoff](docs/CONTRIBUTION-HANDOFF.md): team ownership, checks, and open decisions.
+3. [Required deliverables](docs/DELIVERABLES.md): assignment requirements, deadline, grading, and presentation steps.
 
-The [API guide](API.md) lists backend routes, fields and rules.
+The [API guide](docs/API.md) lists backend routes, fields and rules.
 
 ## Design
 
@@ -26,9 +26,9 @@ The [supplied backend](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent) pr
 
 ## Status
 
-Documentation and UI design are in progress. The application, integration tests, deployment, and MCV submission are not verified. Poom owns the open hosting decision. Read the [deployment research](docs/DEPLOYMENT-OPTIONS.md).
+Documentation and UI design are in progress. The PDFs and guides are organized under `docs/`. The frontend/backend scaffold and type files are planned but not created. Integration, deployment, and MCV submission are not verified. Poom owns the open hosting decision. Read the [deployment research](docs/DEPLOYMENT-OPTIONS.md).
 
 ## Repository plan
 
 Use `frontend/` for Next.js, `backend/` for the supplied backend copy, and `docs/` for guides.
-Put all course PDFs in `docs/pdf/`. These code imports and file moves are pending.
+Put all course PDFs in `docs/pdf/`. The guide and PDF moves are complete. Frontend/backend scaffold and code imports remain pending.

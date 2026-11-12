@@ -58,29 +58,29 @@ The backend copy belongs to Poom. Use the supplied repository at commit [`be18df
 
 Create and edit URLs reuse the same form component. Show rental details inside the list. Use `ConfirmDialog` before deletion. Show loading, empty, error, and success states in the current screen. Do not add admin rental creation because the backend allows only members to create rentals.
 
-The `/equipment/[id]` page displays only the equipment item that matches `id`. It has no equipment selector or tabs for other items.
+The `/equipment/[id]` page displays only the equipment item that matches `id`. It has no equipment selector or tabs for other items. Show a loading state while the page loads the item, then show a not-found message when the API returns 404.
 
 A prop is a value that a parent passes to a component. A callback lets a child report an action to its parent. Pages load data and call the API. Forms collect values and report them through callbacks.
 
 | Component | Inputs | Job |
 |---|---|---|
 | `AppNav` | Current user, logout callback | Show links for the current role |
-| `AuthProvider` | Child components | Share user, token, loading state, login, registration, and logout functions |
+| `AuthProvider` | Children | Share user, token, loading state, login, registration, and logout functions |
 | `AccessGuard` | Allowed roles, children | Wait for the user, then show content or an access message |
-| `AccountTabs` | Safe return path | Switch between login and registration |
+| `AccountTabs` | Safe internal return path | Switch between login and registration |
 | `LoginForm` | Submit callback, pending state, error | Collect email and password |
 | `RegisterForm` | Submit callback, pending state, error | Collect name, email, telephone, role, and password |
 | `EquipmentList` | Items, optional admin callbacks | Show equipment and permitted actions |
 | `EquipmentCard` | One item, details link | Show one catalog item |
-| `EquipmentDetail` | One item, request link | Show all fields for that item |
+| `EquipmentDetail` | One item, optional request link | Show all fields for that item, with no item selector or admin rental creation |
 | `EquipmentForm` | Mode, initial values, submit callback, pending state, error | Reuse equipment fields and validation |
 | `RentalList` | Rentals, member or admin mode, view/edit/delete callbacks | Show the user's requests or all requests |
-| `RentalDetails` | One rental | Show equipment, dates, quantity, and allowed member details |
+| `RentalDetails` | One rental, member or admin display mode | Show equipment, dates, quantity, and member details allowed for that mode |
 | `RentalForm` | Mode, equipment choices, initial values, submit callback, pending state, error | Reuse rental fields and validation |
 | `ConfirmDialog` | Open state, title, message, pending state, confirm/cancel callbacks | Ask before deletion |
 | `Feedback` | Loading, error, or success state and message | Show feedback in the current screen |
 
-Keep submit buttons disabled while a request runs. Keep entered values after an API error. Use labels, native buttons, links, forms, and dialogs. The backend must enforce access because hiding a button does not protect data.
+Pages own callbacks that call the API, navigation, and data refresh. If an API call fails, the page keeps form values and passes the error to its `Feedback` component. Keep submit buttons disabled while a request runs. Use labels, native buttons, links, forms, and dialogs. The backend must enforce access because hiding a button does not protect data.
 
 ## Data and state
 
@@ -90,9 +90,13 @@ The planned type files define `User`, `Role`, `LoginInput`, and `RegisterInput` 
 
 Keep request functions in `lib/api/`. Type files describe data shapes only. Equipment and rental update functions accept partial inputs. Reusable forms submit complete values.
 
-Use React context for authentication state and `sessionStorage` for the token. The token lasts for the current tab. After the browser loads, restore the token and call `/auth/me` before protected content appears. Normalize `/auth/me` data by mapping `_id` to `id` for `AuthUser`. Login and registration store the returned token and sign in the user. Registration includes the required member/admin role selector. Use prepared test accounts for the demo.
+For rental edits, adapt the populated rental response to form input values. Map `Rental.equipment?._id` to the equipment ID, or use an empty string when the reference is missing. Map each response date with `.slice(0, 10)` to keep its UTC calendar date. Do not convert the date through the browser's local timezone. Fetch the active equipment list for the choices. If the current equipment reference is missing or inactive, keep its historic label in separate display data and leave the form selection empty. Explain that the user must choose active equipment. Disable save until the user selects an active choice. If there are no active choices, explain that the user cannot edit this rental now. Keep viewing and deleting available.
 
-`AuthProvider` exposes `user`, `token`, `loading`, `login`, `register`, and `logout`. API functions receive the token as an argument. `client.ts` adds `Authorization: Bearer <token>`. After logout or HTTP 401, clear the token from context and `sessionStorage`, and clear the user. Show HTTP 403 as an access error.
+Rental edits revalidate the dates, including a start date that is now in the past, and the quantity against the newly selected equipment. Submit complete rental values so the backend validates the merged rental. Keep every entered value visible after an API failure.
+
+Use React context for authentication state and `sessionStorage` for the token. The token lasts for the current tab. After the browser loads, restore the token and call `/auth/me` before protected content appears. Normalize `/auth/me` data by mapping `_id` to `id` for `AuthUser`. Login and registration store the returned token and sign in the user. Registration includes the required member/admin role selector. The supplied backend also accepts public admin self-registration, so this is a class demo only until the team chooses server-side role restrictions. Use prepared test accounts for the demo.
+
+`AuthProvider` exposes `user`, `token`, `loading`, `restoreError`, `retrySession`, `login`, `register`, and `logout`. API functions receive the token as an argument. `client.ts` adds `Authorization: Bearer <token>` only when a token exists. If `/auth/me` returns HTTP 401, clear the token from context and `sessionStorage`, and clear the user. If any protected request returns HTTP 401, clear the session too. If `/auth/me` fails because of a network error, keep the token, stop loading, and show a retry action. The guard shows restore errors before the sign-in path and keeps protected content hidden until retry succeeds. Login HTTP 401 shows a credential error in the account form. It does not redirect. Logout clears local token and user state even when its request fails. Show HTTP 403 as an access error. Forms and pages own async error display.
 
 After login or registration, accept only known internal return routes. Send admins to `/admin/equipment` and members to `/rentals` by default. The equipment request link uses `/rentals/new?equipment=<id>`. Keep this choice through login or registration. Only members resume rental creation. Send admins to Admin Equipment. After create, go to My Rentals. After edit, return to the matching member or admin list.
 

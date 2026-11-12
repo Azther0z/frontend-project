@@ -59,7 +59,7 @@ Registration and creation return HTTP 201. Other successful requests return HTTP
 Login and registration return the token in `data.token`.
 
 Errors use `{ success: false, error }`.
-Handle HTTP 400 for invalid input, 401 for missing or invalid login, 403 for denied access, and 404 for missing records.
+Handle HTTP 400 for invalid input, including missing email or password. Handle HTTP 401 for invalid credentials and for protected requests with a missing or invalid token. Handle HTTP 403 for denied access and HTTP 404 for missing records.
 Some database errors return HTTP 500. Keep form values and show a readable error.
 Logout does not revoke existing tokens. Clear the frontend token and user too.
 
@@ -72,8 +72,8 @@ Logout does not revoke existing tokens. Clear the frontend token and user too.
 - Each request is tested against stock on its own. Requests do not reduce stock.
 - Overlapping requests can total more than available stock.
 
-Deleted equipment leaves public lists and cannot be newly rented. Existing rentals remain readable and deletable.
-To edit a rental for deleted equipment, select active equipment.
+Deleted equipment leaves public lists and cannot be newly rented. Existing rentals remain readable and deletable. To edit a rental for deleted equipment, select active equipment.
+Rental updates merge supplied fields with stored values, then validate the merged rental. The frontend sends complete rental values when it edits a request. A past start date fails validation even when the user does not change it. The user must enter valid dates. An inactive equipment reference also fails validation. The user must select active equipment.
 The backend has no payment, approval, reservation, or rental-status flow.
 
 ## Code references

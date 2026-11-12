@@ -162,7 +162,7 @@ export declare const rentalsApi: {
 };
 ```
 
-The route paths are listed in [API.md](API.md). Protected calls receive the token and send `Authorization: Bearer <token>`. The backend returns `{ success: false, error: string }`. Normalize this response to `ApiError` with the HTTP status and readable message. A 401 clears the context and session storage. A 403 stays an access error. Backend authorization remains the authority. Hiding a control is not access control.
+The route paths are listed in [API.md](API.md). Protected calls receive the token and send `Authorization: Bearer <token>`. The backend returns `{ success: false, error: string }`. Normalize this response to `ApiError` with the HTTP status and readable message. A 401 from a protected call clears the context and session storage. A login 401 remains an account form error. A 403 stays an access error. Backend authorization remains the authority. Hiding a control is not access control.
 
 ## Auth context and components
 
@@ -173,6 +173,8 @@ export interface AuthContextValue {
   user: AuthUser | null;
   token: string | null;
   loading: boolean; // token restoration and /auth/me are still running
+  restoreError: string | null;
+  retrySession(): Promise<void>;
   login(input: LoginInput): Promise<void>;
   register(input: RegisterInput): Promise<void>;
   logout(): Promise<void>;
@@ -181,6 +183,19 @@ export interface AuthContextValue {
 export interface AccessGuardProps {
   roles: Role[];
   children: ReactNode;
+}
+
+export interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export interface AppNavProps {
+  user: AuthUser | null;
+  onLogout(): Promise<void>;
+}
+
+export interface AccountTabsProps {
+  returnTo: string; // accepted safe internal path
 }
 
 export interface LoginFormProps {
@@ -203,6 +218,16 @@ export interface EquipmentFormProps {
   error: string | null;
 }
 
+export interface EquipmentCardProps {
+  item: Equipment;
+  detailsHref: string;
+}
+
+export interface EquipmentDetailProps {
+  item: Equipment;
+  requestHref?: string; // omit for admins because only members create rentals
+}
+
 export interface RentalFormProps {
   mode: "create" | "edit";
   equipmentChoices: Equipment[];
@@ -210,6 +235,11 @@ export interface RentalFormProps {
   onSubmit(values: RentalInput): Promise<void>;
   pending: boolean;
   error: string | null;
+}
+
+export interface RentalDetailsProps {
+  rental: Rental;
+  mode: "member" | "admin";
 }
 
 export interface EquipmentListProps {
@@ -225,6 +255,23 @@ export interface RentalListProps {
   onEdit?: (rental: Rental) => void;
   onDelete?: (rental: Rental) => Promise<void>;
 }
+
+export interface ConfirmDialogProps {
+  open: boolean;
+  title: string;
+  message: string;
+  pending: boolean;
+  onConfirm(): Promise<void>;
+  onCancel(): void;
+}
+
+export interface FeedbackProps {
+  loading?: boolean;
+  error?: string | null;
+  success?: string | null;
+}
 ```
 
-Pages own loading, API calls, navigation, and refresh after a successful change. Forms own their field state and report complete values. Page callbacks call the API and keep values visible after a failure. `AccessGuard` waits while `loading` is true, then renders its children for an allowed signed-in role. For no user, show the sign-in path. For a signed-in user with a disallowed role, show an access message. Member rental screens pass `roles={["member"]}`. The admin layout passes `roles={["admin"]}`. The API has no approval state, rental status, or pagination contract, so these interfaces add none.
+Pages own loading, API calls, navigation, refresh after a successful change, and async error display through page feedback. Forms own their field state and report complete values. Keep values visible after a failure. `AccessGuard` first handles session restoration. While `loading` is true, show loading feedback. If `restoreError` exists, show its message and call `retrySession` from the retry action. Do not show protected content during either state. Then render children for an allowed signed-in role. For no user, show the sign-in path. For a signed-in user with a disallowed role, show an access message. Member rental screens pass `roles={["member"]}`. The admin layout passes `roles={["admin"]}`. If `/auth/me` returns 401, clear the token and user. If it fails because of a network error, stop loading, keep the token, and show a retry action while protected content stays behind the guard. Any protected request that returns 401 clears the session. Login 401 displays a credential error in the account form. It does not redirect. Logout always clears local token and user state, including when its request fails. The API has no approval state, rental status, or pagination contract, so these interfaces add none.
+
+For rental edits, map `Rental.equipment?._id` to the form equipment ID, or use an empty string when the reference is missing. Map `startDate` and `returnDate` with `.slice(0, 10)` to preserve the UTC calendar date. Do not convert dates through the local timezone. Load active equipment choices. Keep a missing or inactive current equipment label as separate historic display data. Leave the selection empty and tell the user to choose active equipment. Disable save until an active choice is selected. If there are no active choices, explain that the rental cannot be edited now. Viewing and deleting remain available. Revalidate dates, including a past start date, and quantity against the selected equipment. Submit complete values for the backend's merged-value validation.

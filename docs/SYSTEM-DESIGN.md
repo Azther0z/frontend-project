@@ -9,21 +9,22 @@ flowchart LR
         UI[Next.js React UI]
         Auth[AuthProvider\nuser and token state]
         Store[(sessionStorage\ntoken for this tab)]
+        Client[Browser API client]
         UI --> Auth
         Auth <--> Store
     end
-    subgraph Hosting[Hosting layout open: Poom decides]
-        Next[Next.js frontend\nserves UI]
-        Express[Express API\n/api/v1]
-    end
+    Next[Next.js frontend\nserves UI]
+    Express[Express API\n/api/v1]
     DB[(MongoDB)]
     Visitor --> UI
     Next -->|HTML and assets| UI
-    Auth -->|Browser fetch\nJSON + Bearer token| Express
+    UI --> Client
+    Auth -->|token| Client
+    Client -->|JSON, optional Bearer token\npublic requests omit token| Express
     Express -->|read and write| DB
 ```
 
-Next.js serves the interface. React runs in the browser after the page loads. The browser restores the tab token, calls `/auth/me`, and sends API requests to Express with `Authorization: Bearer <token>`. The Next.js server does not make these authenticated API calls.
+Next.js and Express are separate logical services. Their hosting arrangement remains open. Next.js serves the interface. React runs in the browser after the page loads. The browser restores the tab token and the API client sends `/auth/me` and other protected requests to Express with `Authorization: Bearer <token>`. Public requests omit the token. The Next.js server does not make these authenticated API calls.
 
 The frontend needs a public API base URL. MongoDB credentials and `JWT_SECRET` stay on the backend.
 

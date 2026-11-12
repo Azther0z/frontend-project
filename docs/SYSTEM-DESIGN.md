@@ -39,7 +39,7 @@ Frontend guards and hidden buttons guide navigation. They do not secure data. Ex
 
 ## Hosting and request path
 
-The frontend and Express API are separate logical services. Their project count, URLs, and shared-domain routing remain open until Poom selects a hosting layout. A cross-origin browser request needs the backend CORS origin configured. See [deployment options](DEPLOYMENT-OPTIONS.md).
+The frontend and Express API are separate logical services. Poom owns the hosting choice. A cross-origin browser request needs the backend CORS origin configured.
 
 The backend request and response fields are in [API.md](API.md). The TypeScript interfaces are in [SHARED-CONTRACTS.md](SHARED-CONTRACTS.md).
 

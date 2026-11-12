@@ -19,7 +19,7 @@ Both members contribute code and review each other's work. The named owner coord
 - Reuse rental and equipment forms for their create and edit paths.
 - Keep backend authorization in force. A hidden button does not protect data.
 - Keep each member's local backend data separate. Poom coordinates the shared demo setup.
-- Keep required behavior in [REQUIREMENTS.md](REQUIREMENTS.md) and submission steps in [SUBMISSION.md](SUBMISSION.md).
+- Keep required behavior in [REQUIREMENTS.md](REQUIREMENTS.md).
 - For each change, the author runs the relevant checks. The other member reviews the change and its actual results.
 - Record unresolved issues with an owner and next action in the task or pull request.
 
@@ -35,5 +35,4 @@ Reviewing a design or plan does not satisfy this handoff condition. Do not build
 2. Connect public equipment browsing, account access, and one complete member rental path.
 3. Add member rental view, edit, and delete actions.
 4. Add admin equipment and rental actions.
-5. Run the acceptance cases in [POOM-REVIEW.md](POOM-REVIEW.md), then rehearse the demo.
-6. Complete the submission steps in [SUBMISSION.md](SUBMISSION.md).
+5. Rehearse the demo.

@@ -1,6 +1,6 @@
 # Frontend plan
 
-This document defines the planned Next.js and TypeScript frontend. The application code and its shared type files are planned. See [requirements](REQUIREMENTS.md) for required system behavior, [API](API.md) for the backend contract, [shared contracts](SHARED-CONTRACTS.md) for TypeScript shapes, and [deployment options](DEPLOYMENT-OPTIONS.md) for the open hosting choice.
+This document defines the planned Next.js and TypeScript frontend. The application code and its shared type files are planned. See [requirements](REQUIREMENTS.md) for required system behavior, [API](API.md) for the backend contract, and [shared contracts](SHARED-CONTRACTS.md) for TypeScript shapes.
 
 ## Technology and structure
 
@@ -28,7 +28,7 @@ frontend/
 │   ├── components/
 │   │   ├── shared/       # AppNav, AccessGuard, ConfirmDialog, Feedback
 │   │   ├── auth/         # AuthProvider, AccountTabs, LoginForm, RegisterForm
-│   │   ├── equipment/    # EquipmentList, EquipmentCard, EquipmentDetails, EquipmentForm
+│   │   ├── equipment/    # EquipmentList, EquipmentCard, EquipmentDetail, EquipmentForm
 │   │   └── rentals/      # RentalList, RentalDetails, RentalForm
 │   ├── lib/
 │   │   ├── api/          # client.ts, auth.ts, equipment.ts, rentals.ts
@@ -48,7 +48,7 @@ The backend copy belongs to Poom. Use the supplied repository at commit [`be18df
 | Screen | URL | Main component |
 |---|---|---|
 | Equipment catalog | `/` | `EquipmentList` |
-| Equipment details | `/equipment/[id]` | `EquipmentDetails` |
+| Equipment detail | `/equipment/[id]` | `EquipmentDetail` |
 | Account | `/account` | `AccountTabs` |
 | My rentals | `/rentals` | `RentalList` |
 | Rental form | `/rentals/new`, `/rentals/[id]/edit`, `/admin/rentals/[id]/edit` | `RentalForm` |
@@ -57,6 +57,8 @@ The backend copy belongs to Poom. Use the supplied repository at commit [`be18df
 | Admin rentals | `/admin/rentals` | `RentalList` with member details |
 
 Create and edit URLs reuse the same form component. Show rental details inside the list. Use `ConfirmDialog` before deletion. Show loading, empty, error, and success states in the current screen. Do not add admin rental creation because the backend allows only members to create rentals.
+
+The `/equipment/[id]` page displays only the equipment item that matches `id`. It has no equipment selector or tabs for other items.
 
 A prop is a value that a parent passes to a component. A callback lets a child report an action to its parent. Pages load data and call the API. Forms collect values and report them through callbacks.
 
@@ -70,7 +72,7 @@ A prop is a value that a parent passes to a component. A callback lets a child r
 | `RegisterForm` | Submit callback, pending state, error | Collect name, email, telephone, role, and password |
 | `EquipmentList` | Items, optional admin callbacks | Show equipment and permitted actions |
 | `EquipmentCard` | One item, details link | Show one catalog item |
-| `EquipmentDetails` | One item, request link | Show all equipment fields |
+| `EquipmentDetail` | One item, request link | Show all fields for that item |
 | `EquipmentForm` | Mode, initial values, submit callback, pending state, error | Reuse equipment fields and validation |
 | `RentalList` | Rentals, member or admin mode, view/edit/delete callbacks | Show the user's requests or all requests |
 | `RentalDetails` | One rental | Show equipment, dates, quantity, and allowed member details |

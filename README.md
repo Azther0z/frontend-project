@@ -12,10 +12,7 @@ Read the guides in this order:
 3. [Frontend plan](docs/FRONTEND-PLAN.md): folders, routes, components, and state.
 4. [Shared contracts](docs/SHARED-CONTRACTS.md): TypeScript types and component interfaces.
 5. [API guide](docs/API.md): backend routes, fields, and limits.
-6. [Deployment options](docs/DEPLOYMENT-OPTIONS.md): hosting layouts and deployment tests.
-7. [Contribution guide](docs/CONTRIBUTION-HANDOFF.md): ownership, build order, and integration tests.
-8. [Design review](docs/POOM-REVIEW.md): criteria for reviewing the system design.
-9. [Submission guide](docs/SUBMISSION.md): deadlines, presentation rules, and submission steps.
+6. [Contribution guide](docs/CONTRIBUTION-HANDOFF.md): ownership, build order, and integration tests.
 
 ## Repository structure
 

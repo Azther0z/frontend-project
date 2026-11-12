@@ -24,7 +24,7 @@ Source: `6901_Project_Topics-957520-17911698720803.pdf`, pages 1 and 3.
 - [ ] Use provided backend: https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent.git.
 - [ ] Set up MongoDB and configure backend MongoDB URI.
 - [ ] Run backend locally and inspect API documentation at http://localhost:5000/api-docs.
-- You can customize the backend and add features. The team has not decided how to host a backend that the Vercel frontend can access.
+- You can customize the backend and add features. Poom decides the backend hosting layout. See [deployment options](docs/DEPLOYMENT-OPTIONS.md).
 
 ### Users and access
 
@@ -81,7 +81,7 @@ Source: submission/presentation instructions, page 1. The demo journey omits som
 
 ## Current status
 
-The requirements and team roles are documented. Read [FRONTEND-PLAN.md](FRONTEND-PLAN.md) for the draft directory and component plan.
+The requirements and team roles are documented. Read [FRONTEND-PLAN.md](FRONTEND-PLAN.md) for the agreed directory and component plan.
 Read [CONTRIBUTION-HANDOFF.md](CONTRIBUTION-HANDOFF.md) for ownership and pending checks. Read [API.md](API.md) for backend details.
 
 The [Figma draft](https://www.figma.com/design/llQS6sjdaGY3OpBfXf7NVh/Untitled?node-id=11-815) has eight main screens and two confirmation dialogs.

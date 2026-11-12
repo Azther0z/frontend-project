@@ -1,29 +1,40 @@
 # Saint and Poom: handoff
 
-Status: planning draft. Read [FRONTEND-PLAN.md](FRONTEND-PLAN.md) before starting code.
+Status: agreed plan, recorded on 12 November 2026. Implementation is pending. Read [FRONTEND-PLAN.md](FRONTEND-PLAN.md) before starting code.
 Requirements are in [DELIVERABLES.md](DELIVERABLES.md). API details are in [API.md](API.md).
 
 ## Work split
 
 | Owner | Work |
 |---|---|
-| Saint | Public catalog and details, account forms, auth state, member rentals |
-| Poom | Admin equipment, admin rentals, backend setup, deployment preparation |
+| Saint | Public catalog and details, account forms, auth state, member rentals, Figma and slides |
+| Poom | Admin equipment, admin rentals, backend copy, hosting decision, booking, deployment and MCV |
 | Both | Shared interfaces, integration, review, tests and demo |
 
 Saint starts the shared types, API wrapper, auth provider, and rental form interfaces from the frontend plan.
 Poom reviews these interfaces before building admin pages. Poom reuses the rental form for admin edits.
 Both members write code and run checks. Neither member owns only the presentation.
 
-## Decisions before coding
+## Agreed decisions
 
-The directory and component plan is a draft. The stack is Next.js with TypeScript.
-Use English, plain HTML inside React, and Tailwind classes when needed.
-Complete required features before extras.
+Use one repository with `frontend/`, `backend/`, and `docs/`. Put all course PDFs in `docs/pdf/`.
+Use Next.js App Router, TypeScript, English, plain HTML inside React, and Tailwind classes when needed.
+Complete required features before extras. Reuse the rental and equipment forms for their create/edit flows.
 
-Agree on token persistence, the actual backend URL, and member/admin demo accounts.
-Name the owner for booking, slides, design export, and MCV submission.
-The frontend plan uses memory-only tokens as a draft default. A refresh requires login again.
+Keep login in `sessionStorage` for the current tab. Restore it after refresh and clear it on logout or HTTP 401.
+Sign the user in after registration. Members can continue a pending rental.
+Show the assignment's member/admin role selector. Use prepared test accounts for the demo.
+
+Each member runs a local backend with separate development data.
+Poom owns the shared demo setup and decides its hosting. Keep this decision open.
+The [deployment research](docs/DEPLOYMENT-OPTIONS.md) covers one-project and two-project Vercel options.
+Neither option is tested or selected. The actual deployment URL is pending.
+
+## Handoff requirement
+
+Saint drafts the shared API, types, auth and rental form interfaces. Poom reviews them.
+The handoff needs agreed interfaces and one passing member rental path.
+Both members review Figma, slides, booking details, deployment and the final submission.
 
 ## Build order
 
@@ -38,7 +49,8 @@ The frontend plan uses memory-only tokens as a draft default. A refresh requires
 
 These checks are pending. A document or Figma screen is not a passing test.
 
-- Register all five fields. Log in, log out, and handle an expired token.
+- Register all five fields and sign in automatically. Test member/admin routing.
+- Log in, refresh, log out, close the tab, and handle an expired token.
 - Allow public equipment browsing. Restrict equipment changes to admins.
 - Allow members to create, view, edit and delete own rentals only.
 - Allow admins to view, edit and delete any rental. Block admin rental creation.
@@ -67,6 +79,7 @@ Do not submit this draft as the final UI Flow Design. Export the finished design
 
 ## Completion status
 
-Requirements and the work split are documented. The directory and component plan is ready for team review.
+Requirements, the work split, and the directory and component plan are agreed.
+The backend import and PDF moves are planned. This update changes documents only.
 Application code, integration tests, deployment, booking, and MCV submission are not complete.
 This handoff does not record a passing demo or a submission receipt.

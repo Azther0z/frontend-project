@@ -27,7 +27,7 @@ CORS is the browser rule that controls requests between origins.
 | `GET /equipment` | Public | Read active equipment, sorted by name |
 | `GET /equipment/:id` | Public | Read one active item |
 | `POST /equipment` | Admin | Add equipment |
-| `PUT /equipment/:id` | Admin | Update supplied equipment fields |
+| `PUT /equipment/:id` | Admin | Update supplied fields of an active item |
 | `DELETE /equipment/:id` | Admin | Hide equipment with `isActive: false` |
 | `GET /rentals` | Signed in | Members read own requests. Admins read all |
 | `GET /rentals/:id` | Owner or admin | Read one request |

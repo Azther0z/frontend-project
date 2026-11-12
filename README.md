@@ -16,8 +16,8 @@ The [Figma file](https://www.figma.com/design/llQS6sjdaGY3OpBfXf7NVh/Untitled) c
 
 ## Agreed work
 
-- Saint: public equipment browsing, account registration and login, and member rental requests.
-- Poom: admin equipment and rental management, plus backend and deployment preparation.
+- Saint: public equipment browsing, accounts, member rentals, Figma and slides.
+- Poom: admin equipment and rental management, backend copy, hosting decision, booking, deployment and MCV.
 - Both: integration checks, reviews, UI flow review, and presentation preparation.
 
 Use English and semantic HTML in React. Follow the course examples for Next.js and TypeScript. Use Tailwind utility classes in `className` when styling is needed.
@@ -26,4 +26,9 @@ The [supplied backend](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent) pr
 
 ## Status
 
-Documentation and UI design are in progress. The application, integration tests, deployment, and MCV submission are not verified. The handoff lists open decisions.
+Documentation and UI design are in progress. The application, integration tests, deployment, and MCV submission are not verified. Poom owns the open hosting decision. Read the [deployment research](docs/DEPLOYMENT-OPTIONS.md).
+
+## Repository plan
+
+Use `frontend/` for Next.js, `backend/` for the supplied backend copy, and `docs/` for guides.
+Put all course PDFs in `docs/pdf/`. These code imports and file moves are pending.

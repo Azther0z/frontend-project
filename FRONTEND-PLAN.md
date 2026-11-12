@@ -1,6 +1,6 @@
 # Frontend plan
 
-This is the draft code plan for Saint and Poom. The folders and components below do not exist yet.
+Saint and Poom agreed on this plan on 12 November 2026. The app folders and components do not exist yet.
 Read this plan before the [handoff](CONTRIBUTION-HANDOFF.md).
 
 ## Basic choices
@@ -13,51 +13,70 @@ Use `fetch` for API calls. Keep form state inside each form. Redux is not requir
 
 ```text
 frontend-project/
-├── src/
-│   ├── app/                         # URL routes
-│   │   ├── layout.tsx               # App shell and AuthProvider
-│   │   ├── globals.css
-│   │   ├── page.tsx                 # Equipment catalog: /
-│   │   ├── equipment/[id]/page.tsx  # Equipment details
-│   │   ├── account/page.tsx         # Login and register tabs
-│   │   ├── rentals/
-│   │   │   ├── page.tsx             # My Rentals
-│   │   │   ├── new/page.tsx         # Create a rental
-│   │   │   └── [id]/edit/page.tsx    # Edit own rental
-│   │   └── admin/
-│   │       ├── layout.tsx           # Admin access guard
-│   │       ├── equipment/
-│   │       │   ├── page.tsx         # Manage equipment
-│   │       │   ├── new/page.tsx     # Add equipment
-│   │       │   └── [id]/edit/page.tsx
-│   │       └── rentals/
-│   │           ├── page.tsx         # All Rentals
-│   │           └── [id]/edit/page.tsx
-│   ├── components/
-│   │   ├── shared/                 # AppNav, AccessGuard, ConfirmDialog, Feedback
-│   │   ├── auth/                   # AuthProvider, AccountTabs, LoginForm, RegisterForm
-│   │   ├── equipment/              # EquipmentList, EquipmentCard, EquipmentDetails, EquipmentForm
-│   │   └── rentals/                # RentalList, RentalDetails, RentalForm
-│   ├── lib/
-│   │   ├── api/
-│   │   │   ├── client.ts           # Base URL, bearer token, JSON and errors
-│   │   │   ├── auth.ts             # Register, login, me, logout
-│   │   │   ├── equipment.ts        # List, get, create, update, delete
-│   │   │   └── rentals.ts          # List, get, create, update, delete
-│   │   └── validation.ts           # Shared form rules
-│   └── types/
-│       └── api.ts                  # User, Equipment, Rental, inputs and API responses
-├── public/                         # Static images
-├── .env.example                    # Public API URL only
-├── README.md
-├── DELIVERABLES.md
-├── FRONTEND-PLAN.md
-├── API.md
-└── CONTRIBUTION-HANDOFF.md
+├── frontend/                       # Next.js app
+│   ├── src/
+│   │   ├── app/                         # URL routes
+│   │   │   ├── layout.tsx               # App shell and AuthProvider
+│   │   │   ├── globals.css
+│   │   │   ├── page.tsx                 # Equipment catalog: /
+│   │   │   ├── equipment/[id]/page.tsx  # Equipment details
+│   │   │   ├── account/page.tsx         # Login and register tabs
+│   │   │   ├── rentals/
+│   │   │   │   ├── page.tsx             # My Rentals
+│   │   │   │   ├── new/page.tsx         # Create a rental
+│   │   │   │   └── [id]/edit/page.tsx    # Edit own rental
+│   │   │   └── admin/
+│   │   │       ├── layout.tsx           # Admin access guard
+│   │   │       ├── equipment/
+│   │   │       │   ├── page.tsx         # Manage equipment
+│   │   │       │   ├── new/page.tsx     # Add equipment
+│   │   │       │   └── [id]/edit/page.tsx
+│   │   │       └── rentals/
+│   │   │           ├── page.tsx         # All Rentals
+│   │   │           └── [id]/edit/page.tsx
+│   │   ├── components/
+│   │   │   ├── shared/                 # AppNav, AccessGuard, ConfirmDialog, Feedback
+│   │   │   ├── auth/                   # AuthProvider, AccountTabs, LoginForm, RegisterForm
+│   │   │   ├── equipment/              # EquipmentList, EquipmentCard, EquipmentDetails, EquipmentForm
+│   │   │   └── rentals/                # RentalList, RentalDetails, RentalForm
+│   │   ├── lib/
+│   │   │   ├── api/
+│   │   │   │   ├── client.ts           # Base URL, bearer token, JSON and errors
+│   │   │   │   ├── auth.ts             # Register, login, me, logout
+│   │   │   │   ├── equipment.ts        # List, get, create, update, delete
+│   │   │   │   └── rentals.ts          # List, get, create, update, delete
+│   │   │   └── validation.ts           # Shared form rules
+│   │   └── types/
+│   │       └── api.ts                  # User, Equipment, Rental, inputs and API responses
+│   ├── public/                     # Static images
+│   ├── package.json                # Frontend dependencies and scripts
+│   └── .env.example                # Public API base URL
+├── backend/                        # Copy of the supplied Express backend
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── middleware/
+│   ├── server.js
+│   └── package.json                # Backend dependencies and scripts
+├── docs/
+│   ├── pdf/                        # All course PDFs, with original names
+│   ├── DELIVERABLES.md
+│   ├── FRONTEND-PLAN.md
+│   ├── API.md
+│   ├── CONTRIBUTION-HANDOFF.md
+│   └── DEPLOYMENT-OPTIONS.md        # Research for Poom's hosting decision
+└── README.md
 ```
 
-These are the files that the team will add. Keep the normal Next.js package, TypeScript, and lint configuration at the root.
-Keep private environment values in ignored files. Run the supplied backend as a separate project.
+This is the target layout. This documentation update does not move files or import code.
+Move all course PDFs into `docs/pdf/` during repository setup. Keep their original names.
+Move the root guides into `docs/` and update their links during the same step.
+Keep each app's dependencies, lockfile, and configuration separate. Do not add workspace tools yet.
+Keep private environment values in ignored files.
+
+Poom owns the backend copy. Start from commit `be18df9967be7e0a742b5a5ae25f07966dc4e1d4` of the supplied repository.
+Record its source and revision, and preserve any license and notices. Exclude `.git`, installed dependencies, and secrets.
+Backend updates from the source repository are manual.
 
 ## Routes and screen reuse
 
@@ -112,18 +131,23 @@ Use the backend field names in [API.md](API.md). Convert number inputs to number
 Keep date inputs as `YYYY-MM-DD` strings. Keep display data separate from request inputs.
 A rental response contains equipment and user objects. A rental request sends an equipment ID.
 
-The draft auth choice is React context with memory-only tokens. A refresh requires login again.
-Token persistence remains a team decision before coding. Do not choose a second token store in a feature component.
+Use React context for auth state and `sessionStorage` for the token. Login survives refresh in the same tab.
+Closing the tab ends the stored login. Do not add another token store in a feature component.
+After the browser loads, restore the token and call `/auth/me` before showing protected content.
+Both login and registration store the returned token and sign the user in.
+Registration shows the member/admin role selector required by the assignment. Use prepared test accounts for the demo.
 `AuthProvider` exposes `user`, `token`, `loading`, `login`, `register`, and `logout`.
 API functions receive the token as an argument. `client.ts` adds `Authorization: Bearer <token>`.
 
-The proposed variable is `NEXT_PUBLIC_API_BASE_URL`. Its value is the backend origin, without `/api/v1`.
-The actual hosted URL is still undecided.
+Use `NEXT_PUBLIC_API_BASE_URL` for a separate backend origin, without `/api/v1`.
+For a single-domain deployment, use an empty base and relative `/api/v1` requests.
+Poom decides the hosting layout and URL. Read [deployment options](docs/DEPLOYMENT-OPTIONS.md).
 The API wrapper adds the route prefix. This URL contains no secrets.
-After login, accept only known internal return routes. Send admins to `/admin/equipment` and members to `/rentals` by default.
-The equipment request link uses `/rentals/new?equipment=<id>`. Keep this choice through login.
+After login or registration, accept only known internal return routes. Send admins to `/admin/equipment` and members to `/rentals` by default.
+The equipment request link uses `/rentals/new?equipment=<id>`. Keep this choice through login or registration.
+Only members resume rental creation. Send admins to Admin Equipment.
 After create, go to My Rentals. After edit, return to the matching member or admin list.
-After logout or HTTP 401, clear the token and user. Show HTTP 403 as an access error.
+After logout or HTTP 401, clear the token from context and `sessionStorage`, and clear the user. Show HTTP 403 as an access error.
 
 ## React boundaries
 
@@ -136,9 +160,11 @@ After a successful change, reload the affected list or detail record from the AP
 
 ## Before the handoff
 
-Agree on token persistence, the backend URL, and the demo accounts before coding.
+Saint and Poom each run a local backend with separate development data.
+Poom prepares the shared demo backend and database after choosing the hosting layout.
 Saint drafts the shared types, API wrapper, auth provider, and rental form interfaces.
 Poom reviews them before adding admin screens. Both use the same field names and callbacks.
+Handoff requires agreed interfaces and a passing member rental path. Record the actual test result.
 
 Implement one complete member rental path first. Then connect admin equipment and admin rental paths.
 Record test results in the [handoff](CONTRIBUTION-HANDOFF.md). This plan is not an implementation or test result.

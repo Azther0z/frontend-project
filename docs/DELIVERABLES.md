@@ -81,12 +81,11 @@ Source: [submission/presentation instructions](pdf/Project-Submission-Presentati
 
 ## Current status
 
-The requirements and team roles are documented. The PDF move to `docs/pdf/` is complete. Frontend/backend scaffold, imports, and planned type files are not created. Read [FRONTEND-PLAN.md](FRONTEND-PLAN.md) for the agreed directory and component plan.
-Read [CONTRIBUTION-HANDOFF.md](CONTRIBUTION-HANDOFF.md) for ownership and pending checks. Read [API.md](API.md) for backend details.
+The requirements are documented. The work split and directory/component plan are Saint-confirmed proposals pending Poom review. The PDF move to `docs/pdf/` is complete. Frontend/backend scaffold, imports, and planned type files are not created. Read [SYSTEM-DESIGN.md](SYSTEM-DESIGN.md), [FRONTEND-PLAN.md](FRONTEND-PLAN.md), and [SHARED-CONTRACTS.md](SHARED-CONTRACTS.md) for the design proposal.
+Read [POOM-REVIEW.md](POOM-REVIEW.md) for the review route and [CONTRIBUTION-HANDOFF.md](CONTRIBUTION-HANDOFF.md) for ownership and implementation gates. Read [API.md](API.md) for backend details.
 
-The [Figma draft](https://www.figma.com/design/llQS6sjdaGY3OpBfXf7NVh/Untitled?node-id=11-815) has eight main screens and two confirmation dialogs.
-The layout was inspected on 12 November 2026. The prototype needs component and navigation repairs.
-Full member and admin flows are not tested. The design export and MCV attachment are pending.
+The [Figma draft](https://www.figma.com/design/llQS6sjdaGY3OpBfXf7NVh/Untitled?node-id=11-815) has eight main screens and two confirmation dialogs. Core prototype paths have been tested: catalog/details, member/admin login, member rental create/edit/delete, admin equipment add/edit/delete, and admin rental view/edit/delete. Member and admin registration have passed; see [UI-FLOWS.md](UI-FLOWS.md) for the exact receipt.
+The prototype uses mock interactions: data does not persist, and member/admin context changes are manual. These checks are design evidence, not application tests. The design export and MCV attachment are pending.
 
 Application code, deployment, booking, and submission are not complete.
 

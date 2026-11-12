@@ -1,9 +1,9 @@
 # Saint and Poom: handoff
 
-Status: agreed plan, recorded on 12 November 2026. Implementation is pending. Read [FRONTEND-PLAN.md](FRONTEND-PLAN.md) before starting code.
+Status: Saint-confirmed proposal, pending Poom review, recorded on 12 November 2026. Implementation is pending. Use [POOM-REVIEW.md](POOM-REVIEW.md) to record Poom's decisions. Read [FRONTEND-PLAN.md](FRONTEND-PLAN.md) before starting code.
 Requirements are in [DELIVERABLES.md](DELIVERABLES.md). API details are in [API.md](API.md).
 
-## Work split
+## Proposed work split for review
 
 | Owner | Work |
 |---|---|
@@ -15,7 +15,9 @@ Saint starts the shared types, API wrapper, auth provider, and rental form inter
 Poom reviews these interfaces before building admin pages. Poom reuses the rental form for admin edits.
 Both members write code and run checks. Neither member owns only the presentation.
 
-## Agreed decisions
+## Saint-confirmed proposal for review
+
+The choices below are Saint's confirmed proposal. They remain pending Poom's review; this handoff does not record Poom's approval.
 
 Use one repository with `frontend/`, `backend/`, and `docs/`. Put all course PDFs in `docs/pdf/`.
 Use Next.js App Router, TypeScript, English, plain HTML inside React, and Tailwind classes when needed.
@@ -30,10 +32,10 @@ Poom owns the shared demo setup and decides its hosting. Keep this decision open
 The [deployment research](DEPLOYMENT-OPTIONS.md) covers one-project and two-project Vercel options.
 Neither option is tested or selected. The actual deployment URL is pending.
 
-## Handoff requirement
+## Implementation handoff requirement
 
 Saint drafts the shared API, types, auth and rental form interfaces. Poom reviews them.
-The handoff needs agreed interfaces and one passing member rental path.
+Design review may finish before coding. The implementation handoff needs interfaces accepted by both members and one passing member rental path.
 Both members review Figma, slides, booking details, deployment and the final submission.
 
 ## Build order
@@ -69,17 +71,13 @@ The other member reviews it. Record failures and remaining work too.
 ## UI Flow Design
 
 The [Figma draft](https://www.figma.com/design/llQS6sjdaGY3OpBfXf7NVh/Untitled) has eight main screens and two small delete dialogs.
-The screen count and layout were inspected on 12 November 2026. The click prototype is incomplete.
+The prototype's core paths have been tested: catalog and details; member and admin login; member rental create, edit, and delete; admin equipment add, edit, and delete; and admin rental view, edit, and delete. Member and admin registration have passed. See [UI-FLOWS.md](UI-FLOWS.md) for the exact check receipt.
 
-Browser tests reached Catalog, Details, Account, registration, and the rental form with inline create feedback.
-Some links failed, including the post-create list link and member Edit action.
-Component moves disrupted navigation. Inspect and repair shared component definitions before testing the full member and admin flows.
-The MCP quota and daily Figma AI credit limit also affect automated work.
-Do not submit this draft as the final UI Flow Design. Export the finished design and attach it to MCV.
+The prototype uses mock interactions: data does not persist, and member/admin context changes are manual. These checks are design-prototype evidence, not application tests. Export the finished design and attach it to MCV after the flow review is complete.
 
 ## Completion status
 
-Requirements, the work split, and the directory and component plan are agreed.
+Requirements and the directory and component plan are documented as a Saint-confirmed proposal pending Poom review. The work split is proposed, not jointly accepted. See [POOM-REVIEW.md](POOM-REVIEW.md) for the review route and decision record.
 The PDF move is complete. Frontend/backend scaffold and backend import are pending. Planned type files are not created. This update changes documentation only.
 Application code, integration tests, deployment, booking, and MCV submission are not complete.
 This handoff does not record a passing demo or a submission receipt.

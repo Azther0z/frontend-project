@@ -1,7 +1,7 @@
 # Frontend plan
 
-Saint and Poom agreed on this plan on 12 November 2026. The app folders, components, and planned type files do not exist yet.
-Read this plan before the [handoff](CONTRIBUTION-HANDOFF.md).
+Saint confirmed this proposal on 12 November 2026; Poom's review is pending. The app folders, components, and planned type files do not exist yet.
+Read the [Poom review](POOM-REVIEW.md) and [handoff](CONTRIBUTION-HANDOFF.md) with this plan.
 
 ## Basic choices
 
@@ -64,8 +64,12 @@ frontend-project/
 ├── docs/
 │   ├── pdf/                        # All course PDFs, with original names
 │   ├── DELIVERABLES.md
+│   ├── SYSTEM-DESIGN.md
 │   ├── FRONTEND-PLAN.md
+│   ├── SHARED-CONTRACTS.md
 │   ├── API.md
+│   ├── UI-FLOWS.md
+│   ├── POOM-REVIEW.md
 │   ├── CONTRIBUTION-HANDOFF.md
 │   └── DEPLOYMENT-OPTIONS.md        # Research for Poom's hosting decision
 └── README.md
@@ -81,7 +85,7 @@ Backend updates from the source repository are manual.
 
 ## Routes and screen reuse
 
-The eight Figma screens describe eight UI designs. Create and edit URLs reuse the same design and component.
+The eight Figma screens describe eight UI designs. Create and edit URLs reuse the same design and component. See [UI-FLOWS.md](UI-FLOWS.md) for the current prototype check receipt and limitations.
 
 | Screen | URL | Main component | Owner |
 |---|---|---|---|
@@ -137,7 +141,7 @@ Keep date inputs as `YYYY-MM-DD` strings. Keep display data separate from reques
 `api.ts` defines shared success, list, and error response types.
 For example, a list response has `success`, `data`, and `count`. It can contain equipment or rentals.
 Request functions live in `lib/api/`. The type files only describe data shapes.
-These four type files are planned and have not been created.
+These four type files are planned and have not been created. Their proposed shapes and callers are recorded in [SHARED-CONTRACTS.md](SHARED-CONTRACTS.md); Poom's review is pending.
 
 Use React context for auth state and `sessionStorage` for the token. Login survives refresh in the same tab.
 Closing the tab ends the stored login. Do not add another token store in a feature component.
@@ -168,11 +172,11 @@ After a successful change, reload the affected list or detail record from the AP
 
 ## Before the handoff
 
-Saint and Poom each run a local backend with separate development data.
+The proposal is that Saint and Poom each run a local backend with separate development data.
 Poom prepares the shared demo backend and database after choosing the hosting layout.
-Saint drafts the shared types, API wrapper, auth provider, and rental form interfaces.
+Saint is proposed to draft the shared types, API wrapper, auth provider, and rental form interfaces.
 Poom reviews them before adding admin screens. Both use the same field names and callbacks.
-Handoff requires agreed interfaces and a passing member rental path. Record the actual test result.
+Design approval may happen before coding. Implementation handoff requires interfaces accepted by both members and a passing member rental path. Record the actual test result in [CONTRIBUTION-HANDOFF.md](CONTRIBUTION-HANDOFF.md).
 
 Implement one complete member rental path first. Then connect admin equipment and admin rental paths.
 Record test results in the [handoff](CONTRIBUTION-HANDOFF.md). This plan is not an implementation or test result.

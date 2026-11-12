@@ -49,7 +49,8 @@ Rental input uses `{ equipment, quantity, startDate, returnDate }`.
 The backend sets the owner from the token. Updates cannot change the owner.
 Omitted update fields keep their current values.
 
-Rental reads include equipment and user objects. Auth responses use `data.id` for the user ID.
+Rental reads include equipment and user objects. Login and registration use `data.id` for the user ID.
+`GET /auth/me` returns `data._id`; the frontend maps it to its normalized user `id`.
 Equipment and rental records use `_id`. Keep these differences in the shared TypeScript types.
 
 ## Responses

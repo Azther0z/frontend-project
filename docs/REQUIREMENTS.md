@@ -3,18 +3,23 @@
 The updated [Figma design](https://www.figma.com/design/llQS6sjdaGY3OpBfXf7NVh/SW-DEV-PRAC-2?node-id=0-1) is the only source for screens and product behavior.
 The [Figma guide](FIGMA.md) records the reviewed frames and design evidence.
 The backend limits below are separate integration constraints retained at the user's request. Course PDFs do not define product requirements.
+This page describes the November 16 saved Figma revision, including its agreed behavior note. The [frontend plan](FRONTEND-PLAN.md#confirmed-decisions) separates confirmed scope from technical proposals.
 
 ## Home and accounts
 
-- The home page has visitor, member, and admin variants. It displays “Equipment Rental System,” not the equipment catalog.
-- Visitor navigation has Home, Register, and Login links.
+- The home page has guest, member, and admin variants. It displays “Equipment Rental System,” not the equipment catalog.
+- Guest navigation has Home, Equipment, Register, and Login links.
 - Member navigation has Home, Equipment, Rental, and Logout links. Admin navigation also displays “You are admin.”
 - Registration has Name, Email, Tel, Role, Password, and Confirm Password fields, plus a Register action.
 - Login has Email and Password fields, plus a Login action.
 - Registration and login have separate pages at `/register` and `/login`.
+- Registration keeps Member and Admin role choices for the class demo.
+- Login, registration, and logout always go to Home. Remember no selected item or destination, including entry through Login to request.
 
 ## Equipment
 
+- Guests browse a separate catalog at `/equipments`. Its cards show equipment information and linked names, with neither Rent nor Login to request buttons.
+- The guest detail at `/equipments/{id}` has Login to request instead of Rent. That action opens `/login` without a return destination. After signing in, the member opens Equipment and selects the item again.
 - The member catalog at `/equipments` displays cards with name, description, category, quantity, rental rate, and a Rent action.
 - An equipment name links to `/equipments/{id}`. That page displays one item selected by its URL ID.
 - Equipment details display the name, description, category, and rental rate. The member variant has a Rent action.
@@ -43,7 +48,14 @@ June 10–12 counts as three days. June 10–10 counts as one day.
 For a rental rate of 100 THB, those totals are 300 THB and 100 THB.
 
 The backend has no cost field. The planned frontend calculates the displayed total from the rental rate and selected dates.
-The API and historical-price limits are described in [API.md](API.md#figma-integration).
+Use the equipment item's current rental rate for every displayed total, including older requests. A rate change also changes older displayed totals; requests do not keep the original rate.
+Round the final total once to two decimal places, with halfway values rounded upward. For example, 100.005 becomes 100.01.
+The separate API facts are described in [API.md](API.md#figma-integration).
+
+## Destinations and display scope
+
+Successful creation and editing open that record's detail page. Deletion returns to its corresponding list.
+The class demo is desktop only. Mobile layouts are outside this scope.
 
 ## Backend limits retained in docs
 
@@ -62,7 +74,8 @@ These quantity and date limits are intentionally absent from the Figma frames.
 
 ## Open design details
 
-Figma does not define guest access to equipment URLs, post-submit destinations, deletion confirmation, or loading, empty, error, and success states.
-It does not define mobile layouts or a detailed calendar popup.
+Figma does not define deletion confirmation or loading, empty, error, and success states.
+It establishes one date-range calendar input but does not define the detailed popup.
+These presentation details were not agreed during the interview and are not added to this design update.
 The [frontend plan](FRONTEND-PLAN.md) separates technical proposals from these open design details.
 The [API guide](API.md#figma-integration) records cases where the fixed equipment form cannot satisfy backend validation.

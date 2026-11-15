@@ -79,12 +79,15 @@ Deleted equipment leaves public lists and cannot be newly rented. Existing renta
 Rental updates merge supplied fields with stored values, then validate the merged rental.
 A past start date fails validation even when it is unchanged. An inactive equipment reference also fails validation.
 The API can accept a different active equipment ID during an update. Figma's fixed equipment form does not expose that capability.
+Active equipment with zero quantity remains readable and listed. Rental creation and updates still require a quantity of at least one.
+If equipment quantity falls below a stored request's quantity, even an unrelated edit fails unless the requested quantity is reduced.
+Zero quantity leaves no valid rental quantity. Admins have no exception to these validation rules.
 The backend has no payment, approval, reservation, or rental-status flow.
 
 ## Figma integration
 
 The browser route `/equipments` maps to the singular API route `/api/v1/equipment`.
-Member and admin screen variants share browser paths. The API enforces roles and ownership for each operation.
+Guest, member, and admin equipment screen variants share browser paths. Guests use the public equipment reads. The API enforces roles and ownership for protected operations.
 Rental creation is member-only. The Figma admin creation frame and Rent controls were removed to match that rule.
 
 Registration now includes Name, Email, Tel, Role, Password, and Confirm Password in Figma.
@@ -97,14 +100,16 @@ Quantity is not a multiplier. The backend model and controller return no cost fi
 The proposed frontend derives the displayed total without changing the raw API contract.
 The backend allows seven elapsed days, which contains eight billable calendar days under this inclusive cost rule.
 
-The following integration details remain open:
+The November 16 interview settled these integration choices:
 
-- The backend does not store a historical rental rate or cost. The available equipment rate cannot guarantee a fixed historical total.
-- Figma does not define currency rounding. Choose that rule before implementing decimal-rate calculations.
-- Figma fixes the equipment item on rental editing. The backend rejects inactive equipment, so that edit case needs a design decision.
-- Figma does not define how to display backend validation failures, including an existing rental whose start date is now past.
+- Displayed totals always use the current equipment rate. A rate change also changes older request totals, as recorded in the [decision](adr/0001-calculate-cost-from-current-equipment-rate.md).
+- Round the final total once to two decimal places, with halfway values rounded upward. This is recorded in Figma's behavior note.
+- Keep the backend's availability validation unchanged. Inactive equipment and zero stock can block updates. Reduced stock can require a lower request quantity.
+- Keep the fixed equipment form. Do not add availability-specific frontend controls or an equipment selector.
+- A past start date requires a valid new date range before an update can pass.
+- Keep Member and Admin registration for the class demo.
 
-These are implementation gaps, not reasons to silently replace the Figma screens with backend-driven controls.
+Use normal form error feedback when the API rejects an update. The exact feedback presentation remains a design detail.
 
 ## Code references
 

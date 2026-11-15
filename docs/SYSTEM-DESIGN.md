@@ -4,10 +4,11 @@ This document is a retained technical proposal. The updated [Figma design](FIGMA
 The backend and database details below are separate integration references. The course PDFs do not define product requirements.
 
 The proposed system has a Next.js frontend, an Express API, and MongoDB. The hosting layout remains open. Poom owns that choice. The diagram shows logical responsibilities, not a deployed setup.
+The user allows backend changes when confirmed behavior requires them. The [API guide](API.md) continues to describe the supplied revision until that backend changes.
 
 ```mermaid
 flowchart LR
-    Visitor[Visitor or signed-in user]
+    Visitor[Guest or signed-in user]
     subgraph Web[Browser]
         UI[Next.js React UI]
         Auth[AuthProvider\nuser and token state]
@@ -39,12 +40,14 @@ The frontend needs a public API base URL. MongoDB credentials and `JWT_SECRET` s
 | Express API | Auth middleware verifies bearer tokens. Route middleware checks roles. Rental controllers check ownership. See [API guide](API.md). |
 | MongoDB | Backend models store users, equipment, and rental requests. The browser does not connect to MongoDB. |
 
-Figma's member and admin variants share browser URLs. The proposed frontend selects the variant from the authenticated role.
+Figma's guest, member, and admin equipment variants share browser URLs. The proposed frontend selects the variant from the current account state.
+Guest equipment list and detail pages use public API reads. Home keeps its minimal content and remains separate from the catalog.
+Login to request opens Login without retaining an item or destination. Login, registration, and logout always go to Home.
 The member rental creation path is `/equipments/[id]/rent`. Admins manage existing requests and cannot create them.
 One date-range calendar input maps to the backend's separate start and return date fields.
-The frontend derives displayed cost as the rental rate times inclusive calendar days. The backend does not store or calculate that cost.
+The frontend derives displayed cost as the current equipment rate times inclusive calendar days, without quantity. Round the final total once to two decimals with halfway values rounded upward. The backend does not store or calculate that cost, and older displayed totals change when equipment rates change.
 
-Frontend guards and hidden buttons guide navigation. They do not secure data. Express enforces authentication and authorization. Public registration currently accepts a `role` value that includes `admin`. Use prepared demo accounts.
+Frontend guards and hidden buttons guide navigation. They do not secure data. Express enforces authentication and authorization. Public registration accepts a `role` value that includes `admin`; the class demo intentionally keeps Member and Admin signup.
 
 ## Hosting and request path
 

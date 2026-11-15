@@ -4,8 +4,10 @@ Saint and Poom's Course Project 2 lets members request equipment rentals and adm
 This repository contains project documentation and 18 course PDFs. It does not contain the application yet.
 
 The updated [Figma design](https://www.figma.com/design/llQS6sjdaGY3OpBfXf7NVh/SW-DEV-PRAC-2?node-id=0-1) is the only source for screens and product behavior.
-The [Figma guide](docs/FIGMA.md) records the 18 frames reviewed on November 15, 2026, after the agreed design updates.
+The [Figma guide](docs/FIGMA.md) records the 20 screen frames and behavior note reviewed on November 16, 2026, after the agreed design updates.
 Backend contracts, technical proposals, and the proposed team split remain separate references. Course PDFs are reference files, not product requirements.
+The [glossary](GLOSSARY.md) defines the project terms used in these guides.
+The [frontend plan](docs/FRONTEND-PLAN.md#confirmed-decisions) records the confirmed scope and separates it from implementation proposals.
 
 ## Documentation
 

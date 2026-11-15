@@ -4,6 +4,36 @@ This is a technical proposal for a Next.js and TypeScript frontend. Application 
 Screens and product behavior follow the updated [Figma design](FIGMA.md). Backend details follow [API.md](API.md).
 The stack, component boundaries, authentication storage, and team split below are implementation proposals, not facts from Figma.
 
+## Confirmed decisions
+
+The user confirmed these decisions on November 16, 2026. The guest screens and product behavior are now recorded in the saved Figma revision and its behavior note.
+Backend constraints remain separate technical references.
+
+- Backend changes are allowed when confirmed product behavior needs them. The API guide still describes the current supplied revision.
+- Keep Home's current minimal design for all roles. It has no equipment catalog.
+- Guests browse a separate `/equipments` page. Its cards have neither Rent nor Login to request buttons.
+- Guest catalog cards link to an equipment detail page. That page has Login to request instead of Rent.
+- Keep Home and Equipment separate so those links do not open the same catalog content.
+- Use the equipment item's current rate for every displayed rental total, including older requests. Do not save a creation-time rate.
+- Round the final total once to two decimal places. Round halfway values upward, such as 100.005 to 100.01.
+- Keep backend availability validation as it is. Do not add availability-specific frontend controls or a replacement equipment selector.
+- Editing a request with a past start date requires a valid new date range under the existing backend rules.
+- Keep Member and Admin choices in registration for the class demo.
+- After successful creation or editing, open that record's detail page. After deletion, return to its list.
+- Login, registration, and logout always go to Home. Do not remember a destination or selected item through account access.
+- Login to request opens Login without a return destination. After signing in, the member opens Equipment and selects the item again.
+- The class demo is desktop only. Mobile layouts are outside this scope.
+
+The [current-rate decision](adr/0001-calculate-cost-from-current-equipment-rate.md) records the consequence for older request totals.
+The decisions above are confirmed. Additional feedback controls, deletion dialogs, and calendar popup design were not agreed in this interview.
+Keep existing technical proposals separate from the confirmed scope. Those presentation features are absent from this Figma update.
+
+The user requested a course PDF check before deciding guest access.
+The [project topic PDF](pdf/6901_Project_Topics-957520-17911698720803.pdf), page 3, says all users can view equipment information.
+That viewing rule has no login condition, while nearby rules explicitly require login for member rental creation and admin changes.
+The PDF does not explicitly define whether “User” includes unauthenticated guests. The user chose guest browsing after reviewing that wording.
+Page 1 explicitly permits backend customization and additional functionality.
+
 ## Technology and structure
 
 The retained proposal uses Next.js App Router, TypeScript, Tailwind utility classes, and `fetch`.
@@ -58,15 +88,15 @@ Apply later backend updates manually.
 
 The browser uses plural `/equipments`. The backend API still uses singular `/api/v1/equipment`.
 Figma braces `{id}` and Next.js segments `[id]` represent the same item ID.
-Member and admin variants share URLs. Pages select the variant from the signed-in role.
+Guest, member, and admin variants share URLs. Pages select the variant from the current account state.
 
 | Screen | Browser path | Proposed main component |
 |---|---|---|
-| Home, with visitor/member/admin variants | `/` | Home page and `AppNav` |
+| Home, with guest/member/admin variants | `/` | Home page and `AppNav` |
 | Registration | `/register` | `RegisterForm` |
 | Login | `/login` | `LoginForm` |
-| Equipment catalog, member/admin variants | `/equipments` | `EquipmentList` |
-| One equipment item, member/admin variants | `/equipments/[id]` | `EquipmentDetail` |
+| Equipment catalog, guest/member/admin variants | `/equipments` | `EquipmentList` |
+| One equipment item, guest/member/admin variants | `/equipments/[id]` | `EquipmentDetail` |
 | Member rental creation | `/equipments/[id]/rent` | `RentalForm` |
 | Admin equipment creation | `/equipments/new` | `EquipmentForm` |
 | Admin equipment editing | `/equipments/[id]/edit` | `EquipmentForm` |
@@ -77,6 +107,9 @@ Member and admin variants share URLs. Pages select the variant from the signed-i
 The home page shows the system heading and role-specific navigation. It is separate from the equipment catalog.
 Login and registration are separate pages. Rental details are separate pages rather than expanded list content.
 Admins have no rental creation path or Rent controls. Equipment creation and editing are admin actions.
+Guests can open equipment list and detail URLs without login. Guest cards have linked names and no request buttons.
+Guest details show Login to request, which opens `/login`. Do not retain an item or destination through login or registration; both finish at Home.
+After successful record creation or editing, navigate to its detail page. After deletion, navigate to its list. Logout goes to Home.
 
 `EquipmentDetail` displays only the item that matches the URL ID. Rental forms also display one fixed equipment item.
 Creation binds that ID from `/equipments/[id]/rent`. Editing binds it from the existing rental.
@@ -90,13 +123,13 @@ The proposed interfaces are in [SHARED-CONTRACTS.md](SHARED-CONTRACTS.md).
 
 | Component | Proposed responsibility |
 |---|---|
-| `AppNav` | Visitor links, signed-in links, admin indicator, and logout callback |
+| `AppNav` | Guest Home/Equipment/Register/Login links, signed-in links, admin indicator, and logout callback |
 | `AuthProvider` | Shared user, token, session restoration, and account functions |
 | `AccessGuard` | Wait for authentication and enforce the page's allowed roles |
 | `LoginForm` | Email and password |
 | `RegisterForm` | Name, email, telephone, role, password, and password confirmation |
-| `EquipmentList` / `EquipmentCard` | Member cards with Rent, or admin rows with View/Edit/Delete and an Add action |
-| `EquipmentDetail` | One item, with member Rent or admin Edit/Delete actions |
+| `EquipmentList` / `EquipmentCard` | Guest cards with linked names only, member cards with Rent, or admin rows with View/Edit/Delete and an Add action |
+| `EquipmentDetail` | One item, with guest Login to request, member Rent, or admin Edit/Delete actions |
 | `EquipmentForm` | Shared equipment fields for Add and Save modes |
 | `RentalList` / `RentalDetails` | Request summaries and details, with owner labels in the admin variant |
 | `RentalForm` | Fixed equipment, quantity, one date-range calendar input, cost, and Rent or Save |
@@ -110,6 +143,7 @@ One range input supplies `startDate` and `returnDate`. It keeps an incomplete se
 Cost uses `rentalRate × inclusive calendar days`. June 10–12 is three days. A same-day range is one day.
 Calculate calendar-day differences from date-only values through UTC. Do not measure local clock hours across daylight-saving changes.
 Quantity is not a cost multiplier. The frontend derives displayed cost because the backend has no cost field.
+Use the current equipment rate, including for older requests. Round the final total once to two decimals, with halfway values rounded upward.
 Keep that display value separate from API request and response types.
 
 ## Backend data and authentication proposal
@@ -120,18 +154,19 @@ Rental reads contain populated equipment and user objects. Either reference can 
 For edits, bind `Rental.equipment?._id` and preserve response calendar dates with `.slice(0, 10)`.
 
 Do not replace missing or inactive equipment through a new selector. Figma has no such control.
-The backend rejects edits for inactive equipment and revalidates past start dates. Those cases need an agreed design before implementation.
+Keep the backend's availability and date validation unchanged. Use normal form error feedback when an update is rejected.
+Do not add availability-specific edit restrictions or controls in the frontend. A past start date must change to a valid new date range before saving.
 
 The retained authentication proposal uses React context and `sessionStorage` for a token scoped to the current tab.
 After browser loading, restore the token and call `/auth/me` before protected data loads.
 Map `_id` from `/auth/me` to the frontend user's `id`. Login and registration already return `id`.
 API functions receive the token as an argument. The client sends `Authorization: Bearer <token>` on protected calls.
-Public API calls omit the token. Public API access does not establish a guest screen in Figma.
+Public API calls omit the token. The guest equipment screens use those public endpoints.
 
 On a protected HTTP 401 response, clear the local token and user. A login HTTP 401 stays a form error.
 On a session-restore network failure, keep the token and offer a retry while protected content stays hidden.
 Logout clears local state even if the request fails. HTTP 403 remains an access error.
-The supplied backend accepts public admin self-registration. Keep its current behavior documented separately from any later server-side restriction decision.
+The class demo intentionally keeps Member and Admin registration, matching the supplied backend and the agreed design.
 
 ## React boundaries and open details
 
@@ -139,13 +174,13 @@ Keep route files small. Interactive forms, browser data loaders, and authenticat
 The root layout remains a Server Component and renders the client authentication provider around page content.
 Do not read browser token storage during server rendering. Reload affected records after successful API changes.
 
-Figma does not specify guest access to equipment URLs, post-login or post-submit destinations, feedback states, or deletion confirmation.
+Figma does not specify feedback states or deletion confirmation.
 The feedback, retry, and confirmation behaviors above are technical proposals. Their exact presentation needs design agreement.
-The Figma calendar wireframe establishes one range input, not a complete calendar popup or mobile layout.
+The Figma calendar wireframe establishes one range input, not a complete calendar popup. The confirmed class demo scope does not require mobile layouts.
 
 ## Proposed implementation order
 
-The retained work split assigns account forms, member equipment screens, and member rentals to Saint.
+The retained work split assigns account forms, guest and member equipment screens, and member rentals to Saint.
 It assigns admin equipment and rental management, the backend copy, and hosting selection to Poom.
 Both members handle shared interfaces, integration, and review.
 

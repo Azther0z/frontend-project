@@ -245,12 +245,13 @@ export interface EquipmentFormProps {
 export interface EquipmentCardProps {
   item: Equipment;
   detailsHref: string;
-  requestHref: string; // member catalog only
+  requestHref?: string; // member catalog only; guest cards omit it
 }
 
 export interface EquipmentDetailProps {
   item: Equipment;
-  mode: "member" | "admin";
+  mode: "guest" | "member" | "admin";
+  loginHref?: string; // guest variant: /login, without a return destination
   requestHref?: string; // member variant only
   onEdit?: (item: Equipment) => void;
   onDelete?: (item: Equipment) => Promise<void>;
@@ -283,7 +284,7 @@ export interface RentalDetailsProps {
 
 export interface EquipmentListProps {
   items: Equipment[];
-  mode: "member" | "admin";
+  mode: "guest" | "member" | "admin";
   onView(item: Equipment): void;
   onRent?: (item: Equipment) => void; // member variant only
   onAdd?: () => void; // admin variant only
@@ -317,30 +318,36 @@ export interface FeedbackProps {
 }
 ```
 
-`AppNav` links to Home, Register, and Login for visitors. Signed-in variants link to Home, Equipment, Rental, and Logout.
+`AppNav` links to Home, Equipment, Register, and Login for guests. Signed-in variants link to Home, Equipment, Rental, and Logout.
 The admin variant also displays its role indicator. Admin equipment components never render Rent controls.
+Guest equipment cards omit request controls. Guest details show Login to request and open `/login` without saving a destination.
+Login, registration, and logout always navigate to Home. The auth interfaces need no return-path state.
 Only members use `RentalForm` in create mode. Both roles use edit mode for requests permitted by the backend.
 Rental View actions navigate to `/rentals/[id]`, rather than expanding details inside the list.
 
-Pages own API calls, navigation, and refresh after a successful change. Forms own field state and retain it after an API failure.
+Pages own API calls, navigation, and refresh after a successful change. Creation and editing open the record detail; deletion returns to its list.
+Forms own field state. Retaining entered values after an API failure remains an implementation proposal, not an agreed design requirement.
 A complete date range supplies `RentalFormInput.startDate` and `RentalFormInput.returnDate`.
 Do not submit an incomplete range. The page adds the fixed equipment ID when it builds `RentalInput`.
 
 ## Cost calculation and integration limits
 
 The proposed `lib/rental-cost.ts` calculates `days` from calendar dates, with both dates included.
-For valid dates, `days = (returnDateUTC - startDateUTC) / 86400000 + 1` and `total = rentalRate × days`.
+For valid dates, `days = (returnDateUTC - startDateUTC) / 86400000 + 1`. Calculate `rentalRate × days`, then round that final total once to two decimals with halfway values rounded upward.
 Use UTC calendar dates for this calculation, not local elapsed hours. Quantity is not a multiplier.
 Return no cost for an incomplete or invalid range, or a missing equipment rate.
 A rate of 100 produces 100 THB for June 10–10 and 300 THB for June 10–12.
 
 `RentalCost` is display data. Do not add it to the raw `Rental` type or send it in a rental API request.
-The backend does not store a cost or a historical rental rate. Historical-price and rounding policies remain open.
-The proposed display adapter uses the rate available in the equipment response and cannot promise a fixed historical total.
+The backend does not store a cost or a historical rental rate. All displayed totals use the current equipment rate, including older requests.
+The confirmed rounding plan rounds the final total once to two decimal places, with halfway values rounded upward.
+The display adapter uses the rate in the equipment response. Rate changes also change displayed totals for older requests.
+The [current-rate decision](adr/0001-calculate-cost-from-current-equipment-rate.md) records this trade-off.
 
 For edits, use the existing rental's equipment ID and date strings. Preserve response calendar dates with `.slice(0, 10)`.
 A missing or inactive item cannot be replaced through the Figma form because it has no equipment selector.
-The backend also rejects past start dates during updates. Record these cases as integration gaps rather than adding controls to Figma implicitly.
+Keep backend availability validation unchanged and display rejections through normal form error feedback.
+Do not add availability-specific frontend controls. The backend rejects past start dates during updates, so saving requires a valid new date range.
 
 The authentication and feedback proposals remain in [FRONTEND-PLAN.md](FRONTEND-PLAN.md).
 A protected HTTP 401 clears the local session. A login HTTP 401 remains a form error. HTTP 403 remains an access error.

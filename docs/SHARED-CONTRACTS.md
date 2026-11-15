@@ -1,6 +1,7 @@
 # Shared contracts
 
-These TypeScript contracts describe the planned frontend data and component interfaces. The field shapes follow the pinned backend at commit [`be18df9`](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent/tree/be18df9967be7e0a742b5a5ae25f07966dc4e1d4).
+These TypeScript contracts are a technical proposal. Screens and product behavior follow the updated [Figma design](FIGMA.md).
+Raw API field shapes remain a separate reference from the pinned backend at commit [`be18df9`](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent/tree/be18df9967be7e0a742b5a5ae25f07966dc4e1d4).
 
 The backend sends MongoDB IDs as strings in JSON. Login and registration responses use `id`. `/auth/me`, equipment records, and rental records use `_id`. Keep request data separate from read data. Rental input sends an ID in the field named `equipment`. Date inputs use `YYYY-MM-DD`. Dates returned by the API are ISO date-time strings.
 
@@ -53,6 +54,11 @@ export interface RegisterInput {
   role: Role;
 }
 
+// UI-only confirmation. Remove confirmPassword before calling authApi.register.
+export interface RegisterFormValues extends RegisterInput {
+  confirmPassword: string;
+}
+
 export interface Equipment {
   _id: string;
   name: string;
@@ -101,11 +107,28 @@ export interface RentalInput {
 }
 
 export type RentalUpdate = Partial<RentalInput>;
+
+// The page binds equipment from the URL or existing rental. The form cannot reselect it.
+export type RentalFormInput = Omit<RentalInput, "equipment">;
+
+// One calendar input can contain an incomplete range while the user selects dates.
+export interface DateRangeValue {
+  startDate: string | null; // YYYY-MM-DD when selected
+  returnDate: string | null; // YYYY-MM-DD when selected
+}
+
+// Derived frontend display data. These fields are absent from the backend Rental.
+export interface RentalCost {
+  days: number;
+  total: number;
+  currency: "THB";
+}
 ```
 
 `Rental.equipment` uses `RentalEquipment`, and `Rental.user` uses `RentalUser`. Either reference can be `null` if its record no longer exists. Successful rental reads populate both references. Login and registration return a safe user object with `id` and no `tel`. `/auth/me` returns a Mongoose user with `_id`, `tel`, and `createdAt`. Keep `AuthUser` as the normalized frontend state shape and map `_id` to `id` when restoring the session. `Equipment` and `Rental` have `createdAt` and `updatedAt` because their Mongoose schemas enable timestamps.
 
-An update omits unchanged fields. The equipment key remains `equipment`, not `equipmentID`. Equipment and rental update functions take partial inputs. Reusable forms submit complete values.
+An update omits unchanged fields. The equipment key remains `equipment`, not `equipmentID`. Equipment and rental update functions take partial inputs. Forms submit complete editable values.
+The rental page binds the fixed equipment ID and maps one date-range input to `startDate` and `returnDate`.
 
 ## API response and function shapes
 
@@ -164,7 +187,11 @@ export declare const rentalsApi: {
 
 The route paths are listed in [API.md](API.md). Protected calls receive the token and send `Authorization: Bearer <token>`. The backend returns `{ success: false, error: string }`. Normalize this response to `ApiError` with the HTTP status and readable message. A 401 from a protected call clears the context and session storage. A login 401 remains an account form error. A 403 stays an access error. Backend authorization remains the authority. Hiding a control is not access control.
 
-## Auth context and components
+## Auth context and component proposals
+
+These interfaces support the Figma routes and fields. They do not define additional product screens.
+`RegisterFormValues` keeps password confirmation separate from `RegisterInput`.
+`DateRangeValue` describes one visible calendar input, not two visible date inputs.
 
 ```tsx
 import type { ReactNode } from "react";
@@ -172,7 +199,7 @@ import type { ReactNode } from "react";
 export interface AuthContextValue {
   user: AuthUser | null;
   token: string | null;
-  loading: boolean; // token restoration and /auth/me are still running
+  loading: boolean;
   restoreError: string | null;
   retrySession(): Promise<void>;
   login(input: LoginInput): Promise<void>;
@@ -194,10 +221,6 @@ export interface AppNavProps {
   onLogout(): Promise<void>;
 }
 
-export interface AccountTabsProps {
-  returnTo: string; // accepted safe internal path
-}
-
 export interface LoginFormProps {
   onSubmit(input: LoginInput): Promise<void>;
   pending: boolean;
@@ -205,6 +228,7 @@ export interface LoginFormProps {
 }
 
 export interface RegisterFormProps {
+  // The form compares passwords and omits confirmPassword from this value.
   onSubmit(input: RegisterInput): Promise<void>;
   pending: boolean;
   error: string | null;
@@ -221,29 +245,48 @@ export interface EquipmentFormProps {
 export interface EquipmentCardProps {
   item: Equipment;
   detailsHref: string;
+  requestHref: string; // member catalog only
 }
 
 export interface EquipmentDetailProps {
   item: Equipment;
-  requestHref?: string; // omit for admins because only members create rentals
+  mode: "member" | "admin";
+  requestHref?: string; // member variant only
+  onEdit?: (item: Equipment) => void;
+  onDelete?: (item: Equipment) => Promise<void>;
+}
+
+export interface DateRangeInputProps {
+  value: DateRangeValue;
+  onChange(value: DateRangeValue): void;
+  disabled?: boolean;
+  error?: string | null;
 }
 
 export interface RentalFormProps {
   mode: "create" | "edit";
-  equipmentChoices: Equipment[];
-  initialValues?: RentalInput;
-  onSubmit(values: RentalInput): Promise<void>;
+  equipment: RentalEquipment | null; // fixed summary, never a list of choices
+  ownerLabel?: string; // admin edit variant
+  initialValues?: RentalFormInput;
+  onSubmit(values: RentalFormInput): Promise<void>;
   pending: boolean;
   error: string | null;
 }
 
 export interface RentalDetailsProps {
   rental: Rental;
+  cost: RentalCost | null;
   mode: "member" | "admin";
+  onEdit?: (rental: Rental) => void;
+  onDelete?: (rental: Rental) => Promise<void>;
 }
 
 export interface EquipmentListProps {
   items: Equipment[];
+  mode: "member" | "admin";
+  onView(item: Equipment): void;
+  onRent?: (item: Equipment) => void; // member variant only
+  onAdd?: () => void; // admin variant only
   onEdit?: (item: Equipment) => void;
   onDelete?: (item: Equipment) => Promise<void>;
 }
@@ -251,11 +294,13 @@ export interface EquipmentListProps {
 export interface RentalListProps {
   rentals: Rental[];
   mode: "member" | "admin";
-  onView?: (rental: Rental) => void;
-  onEdit?: (rental: Rental) => void;
-  onDelete?: (rental: Rental) => Promise<void>;
+  getCost(rental: Rental): RentalCost | null;
+  onView(rental: Rental): void;
+  onEdit(rental: Rental): void;
+  onDelete(rental: Rental): Promise<void>;
 }
 
+// Proposed presentation behavior. Figma does not yet specify this dialog.
 export interface ConfirmDialogProps {
   open: boolean;
   title: string;
@@ -272,6 +317,31 @@ export interface FeedbackProps {
 }
 ```
 
-Pages own loading, API calls, navigation, refresh after a successful change, and async error display through page feedback. Forms own their field state and report complete values. Keep values visible after a failure. `AccessGuard` first handles session restoration. While `loading` is true, show loading feedback. If `restoreError` exists, show its message and call `retrySession` from the retry action. Do not show protected content during either state. Then render children for an allowed signed-in role. For no user, show the sign-in path. For a signed-in user with a disallowed role, show an access message. Member rental screens pass `roles={["member"]}`. The admin layout passes `roles={["admin"]}`. If `/auth/me` returns 401, clear the token and user. If it fails because of a network error, stop loading, keep the token, and show a retry action while protected content stays behind the guard. Any protected request that returns 401 clears the session. Login 401 displays a credential error in the account form. It does not redirect. Logout always clears local token and user state, including when its request fails. The API has no approval state, rental status, or pagination contract, so these interfaces add none.
+`AppNav` links to Home, Register, and Login for visitors. Signed-in variants link to Home, Equipment, Rental, and Logout.
+The admin variant also displays its role indicator. Admin equipment components never render Rent controls.
+Only members use `RentalForm` in create mode. Both roles use edit mode for requests permitted by the backend.
+Rental View actions navigate to `/rentals/[id]`, rather than expanding details inside the list.
 
-For rental edits, map `Rental.equipment?._id` to the form equipment ID, or use an empty string when the reference is missing. Map `startDate` and `returnDate` with `.slice(0, 10)` to preserve the UTC calendar date. Do not convert dates through the local timezone. Load active equipment choices. Keep a missing or inactive current equipment label as separate historic display data. Leave the selection empty and tell the user to choose active equipment. Disable save until an active choice is selected. If there are no active choices, explain that the rental cannot be edited now. Viewing and deleting remain available. Revalidate dates, including a past start date, and quantity against the selected equipment. Submit complete values for the backend's merged-value validation.
+Pages own API calls, navigation, and refresh after a successful change. Forms own field state and retain it after an API failure.
+A complete date range supplies `RentalFormInput.startDate` and `RentalFormInput.returnDate`.
+Do not submit an incomplete range. The page adds the fixed equipment ID when it builds `RentalInput`.
+
+## Cost calculation and integration limits
+
+The proposed `lib/rental-cost.ts` calculates `days` from calendar dates, with both dates included.
+For valid dates, `days = (returnDateUTC - startDateUTC) / 86400000 + 1` and `total = rentalRate × days`.
+Use UTC calendar dates for this calculation, not local elapsed hours. Quantity is not a multiplier.
+Return no cost for an incomplete or invalid range, or a missing equipment rate.
+A rate of 100 produces 100 THB for June 10–10 and 300 THB for June 10–12.
+
+`RentalCost` is display data. Do not add it to the raw `Rental` type or send it in a rental API request.
+The backend does not store a cost or a historical rental rate. Historical-price and rounding policies remain open.
+The proposed display adapter uses the rate available in the equipment response and cannot promise a fixed historical total.
+
+For edits, use the existing rental's equipment ID and date strings. Preserve response calendar dates with `.slice(0, 10)`.
+A missing or inactive item cannot be replaced through the Figma form because it has no equipment selector.
+The backend also rejects past start dates during updates. Record these cases as integration gaps rather than adding controls to Figma implicitly.
+
+The authentication and feedback proposals remain in [FRONTEND-PLAN.md](FRONTEND-PLAN.md).
+A protected HTTP 401 clears the local session. A login HTTP 401 remains a form error. HTTP 403 remains an access error.
+The API has no approval state, rental status, or pagination contract. These interfaces add none.

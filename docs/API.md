@@ -4,6 +4,9 @@ An API is the set of requests that the frontend sends to the backend.
 Use the [supplied backend](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent).
 This contract comes from commit [`be18df9`](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent/tree/be18df9967be7e0a742b5a5ae25f07966dc4e1d4).
 
+This is a backend reference, not the source for product screens. The updated [Figma design](FIGMA.md) defines screens and product behavior.
+The user asked to retain backend quantity and date limits in the docs without adding them to Figma.
+
 ## Connection
 
 The local origin is `http://localhost:5000`. API docs are at `/api-docs`.
@@ -72,9 +75,36 @@ Logout does not revoke existing tokens. Clear the frontend token and user too.
 - Each request is tested against stock on its own. Requests do not reduce stock.
 - Overlapping requests can total more than available stock.
 
-Deleted equipment leaves public lists and cannot be newly rented. Existing rentals remain readable and deletable. To edit a rental for deleted equipment, select active equipment.
-Rental updates merge supplied fields with stored values, then validate the merged rental. The frontend sends complete rental values when it edits a request. A past start date fails validation even when the user does not change it. The user must enter valid dates. An inactive equipment reference also fails validation. The user must select active equipment.
+Deleted equipment leaves public lists and cannot be newly rented. Existing rentals remain readable and deletable.
+Rental updates merge supplied fields with stored values, then validate the merged rental.
+A past start date fails validation even when it is unchanged. An inactive equipment reference also fails validation.
+The API can accept a different active equipment ID during an update. Figma's fixed equipment form does not expose that capability.
 The backend has no payment, approval, reservation, or rental-status flow.
+
+## Figma integration
+
+The browser route `/equipments` maps to the singular API route `/api/v1/equipment`.
+Member and admin screen variants share browser paths. The API enforces roles and ownership for each operation.
+Rental creation is member-only. The Figma admin creation frame and Rent controls were removed to match that rule.
+
+Registration now includes Name, Email, Tel, Role, Password, and Confirm Password in Figma.
+The form compares the passwords and sends `{ name, email, tel, password, role }`. It does not send password confirmation.
+One visible calendar input selects a range and maps it to the existing `startDate` and `returnDate` fields.
+This does not require a new API range field.
+
+The agreed cost formula is `rentalRate × days`, counting both calendar dates. Same-day rental counts as one day.
+Quantity is not a multiplier. The backend model and controller return no cost field and perform no cost calculation.
+The proposed frontend derives the displayed total without changing the raw API contract.
+The backend allows seven elapsed days, which contains eight billable calendar days under this inclusive cost rule.
+
+The following integration details remain open:
+
+- The backend does not store a historical rental rate or cost. The available equipment rate cannot guarantee a fixed historical total.
+- Figma does not define currency rounding. Choose that rule before implementing decimal-rate calculations.
+- Figma fixes the equipment item on rental editing. The backend rejects inactive equipment, so that edit case needs a design decision.
+- Figma does not define how to display backend validation failures, including an existing rental whose start date is now past.
+
+These are implementation gaps, not reasons to silently replace the Figma screens with backend-driven controls.
 
 ## Code references
 
@@ -82,7 +112,7 @@ Paths below refer to the pinned backend commit:
 
 - `controllers/auth.js`, `middleware/auth.js`, `models/User.js`: login, roles and tokens.
 - `controllers/equipment.js`, `models/Equipment.js`: fields and equipment deletion.
-- `controllers/rentals.js`: ownership, dates, quantity and rental deletion.
+- `controllers/rentals.js`, `models/Rental.js`: ownership, dates, quantity, rental deletion, and the absence of stored cost.
 - `routes/auth.js`, `routes/equipment.js`, `routes/rentals.js`: route access.
 - `server.js`, `config/config.env`: origin, port and environment values.
 

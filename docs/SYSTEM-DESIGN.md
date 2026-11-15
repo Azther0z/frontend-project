@@ -1,5 +1,8 @@
 # System design
 
+This document is a retained technical proposal. The updated [Figma design](FIGMA.md) is the only source for screens and product behavior.
+The backend and database details below are separate integration references. The course PDFs do not define product requirements.
+
 The proposed system has a Next.js frontend, an Express API, and MongoDB. The hosting layout remains open. Poom owns that choice. The diagram shows logical responsibilities, not a deployed setup.
 
 ```mermaid
@@ -35,6 +38,11 @@ The frontend needs a public API base URL. MongoDB credentials and `JWT_SECRET` s
 | Next.js frontend | Planned App Router pages, React components, authentication provider, API client, access guards, forms, and role-based navigation. See [frontend plan](FRONTEND-PLAN.md). |
 | Express API | Auth middleware verifies bearer tokens. Route middleware checks roles. Rental controllers check ownership. See [API guide](API.md). |
 | MongoDB | Backend models store users, equipment, and rental requests. The browser does not connect to MongoDB. |
+
+Figma's member and admin variants share browser URLs. The proposed frontend selects the variant from the authenticated role.
+The member rental creation path is `/equipments/[id]/rent`. Admins manage existing requests and cannot create them.
+One date-range calendar input maps to the backend's separate start and return date fields.
+The frontend derives displayed cost as the rental rate times inclusive calendar days. The backend does not store or calculate that cost.
 
 Frontend guards and hidden buttons guide navigation. They do not secure data. Express enforces authentication and authorization. Public registration currently accepts a `role` value that includes `admin`. Use prepared demo accounts.
 

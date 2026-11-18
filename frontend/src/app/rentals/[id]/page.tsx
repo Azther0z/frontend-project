@@ -25,9 +25,6 @@ export default function RentalDetailPage({ params }: { params: Promise<{ id: str
       router.replace("/login");
       return;
     }
-    if (session.user.role !== "member") {
-      return;
-    }
     let active = true;
     rentalsApi.get(routeId, session.backendToken ?? "").then((result) => {
       if (active) setRental(result);
@@ -40,7 +37,6 @@ export default function RentalDetailPage({ params }: { params: Promise<{ id: str
   }, [routeId, router, session, status]);
 
   if (status === "loading") return <LoadingMessage />;
-  if (session?.user.role === "admin") return <ErrorMessage>Admin rental management is the next implementation step.</ErrorMessage>;
   if (loading) return <LoadingMessage />;
   if (error) return <ErrorMessage>{error}</ErrorMessage>;
   if (!rental) return null;
@@ -49,6 +45,7 @@ export default function RentalDetailPage({ params }: { params: Promise<{ id: str
   return (
     <section className="content-medium">
       <h1>Rental request</h1>
+      {session?.user.role === "admin" && <p className="owner-label">From {rental.user?.name ?? "Unknown user"}</p>}
       <div className="detail-panel">
         <h2>{rental.equipment?.name ?? "Equipment unavailable"}</h2>
         {rental.equipment && <>

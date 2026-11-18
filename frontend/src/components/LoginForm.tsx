@@ -18,7 +18,9 @@ export default function LoginForm() {
     setError("");
     try {
       const result = await signIn("credentials", { email, password, redirect: false });
-      if (!result || result.error) throw new Error("Email or password is incorrect.");
+      if (!result || result.error) {
+        throw new Error(result?.error === "CredentialsSignin" ? "Email or password is incorrect." : "The rental service is unavailable. Please try again.");
+      }
       router.push("/");
       router.refresh();
     } catch (cause) {

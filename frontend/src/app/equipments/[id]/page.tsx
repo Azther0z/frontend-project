@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, use } from "react";
 import { useSession } from "next-auth/react";
 import type { Equipment } from "../../../../interface";
+import DeleteEquipmentButton from "@/components/DeleteEquipmentButton";
 import { equipmentApi, errorMessage } from "@/libs/api";
 import { money } from "@/libs/rental-cost";
 import { ErrorMessage, LoadingMessage } from "@/components/Feedback";
@@ -18,7 +19,7 @@ export default function EquipmentDetailPage({ params }: { params: Promise<{ id: 
   useEffect(() => {
     if (status === "loading") return;
     let active = true;
-    equipmentApi.get(routeId, session?.backendToken).then((result) => {
+    equipmentApi.get(routeId).then((result) => {
       if (active) setItem(result);
     }).catch((cause: unknown) => {
       if (active) setError(errorMessage(cause));
@@ -42,7 +43,10 @@ export default function EquipmentDetailPage({ params }: { params: Promise<{ id: 
         </div>
         {status !== "authenticated" ? <Link className="button button-outline" href="/login">Login to request</Link>
           : session.user.role === "member" ? <Link className="button button-primary" href={`/equipments/${item._id}/rent`}>Rent</Link>
-          : <p className="notice">Admins cannot create rental requests.</p>}
+          : <div className="button-row">
+            <Link className="button button-outline" href={`/equipments/${item._id}/edit`}>Edit</Link>
+            {session.backendToken && <DeleteEquipmentButton equipmentId={item._id} token={session.backendToken} />}
+          </div>}
       </>}
     </section>
   );

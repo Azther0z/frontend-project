@@ -21,9 +21,6 @@ export default function RentalEditPage({ rentalId }: { rentalId: string }) {
       router.replace("/login");
       return;
     }
-    if (session.user.role !== "member") {
-      return;
-    }
     let active = true;
     rentalsApi.get(rentalId, session.backendToken ?? "").then((result) => {
       if (active) setRental(result);
@@ -36,7 +33,6 @@ export default function RentalEditPage({ rentalId }: { rentalId: string }) {
   }, [rentalId, router, session, status]);
 
   if (status === "loading") return <LoadingMessage />;
-  if (session?.user.role === "admin") return <ErrorMessage>Admin rental management is the next implementation step.</ErrorMessage>;
   if (loading) return <LoadingMessage />;
   if (error) return <ErrorMessage>{error}</ErrorMessage>;
   if (!rental || !rental.equipment || !session?.backendToken) {
@@ -46,6 +42,7 @@ export default function RentalEditPage({ rentalId }: { rentalId: string }) {
   return (
     <section className="content-medium">
       <h1>Edit rental request</h1>
+      {session.user.role === "admin" && <p className="owner-label">From {rental.user?.name ?? "Unknown user"}</p>}
       <RentalForm
         equipment={rental.equipment}
         initialQuantity={rental.quantity}

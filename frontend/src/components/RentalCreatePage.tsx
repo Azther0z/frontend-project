@@ -25,7 +25,7 @@ export default function RentalCreatePage({ equipmentId }: { equipmentId: string 
       return;
     }
     let active = true;
-    equipmentApi.get(equipmentId, session.backendToken).then((result) => {
+    equipmentApi.get(equipmentId).then((result) => {
       if (active) setEquipment(result);
     }).catch((cause: unknown) => {
       if (active) setError(errorMessage(cause));

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { DateRangeValue } from "../../interface";
-import { addDays, todayUtc } from "@/libs/dates";
+import { latestReturnDate, todayUtc } from "@/libs/dates";
 
 const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -92,7 +92,8 @@ export default function DateRangeInput({
               if (!date) return <span aria-hidden="true" className="calendar-blank" key={`blank-${index}`} />;
               const chosen = date === value.startDate || date === value.returnDate;
               const inRange = Boolean(value.startDate && value.returnDate && date > value.startDate && date < value.returnDate);
-              const invalid = date < now || (value.startDate !== null && date > addDays(value.startDate, 7));
+              const choosingEnd = value.startDate !== null && value.startDate >= now && value.returnDate === null;
+              const invalid = date < now || (choosingEnd && date > latestReturnDate(value.startDate!));
               return (
                 <button
                   aria-pressed={chosen}
@@ -108,6 +109,7 @@ export default function DateRangeInput({
             })}
           </div>
           <p className="calendar-hint">Select a start date, then a return date.</p>
+          <button className="text-button" onClick={() => onChange({ startDate: null, returnDate: null })} type="button">Clear dates</button>
           <button className="text-button" onClick={() => setOpen(false)} type="button">Close calendar</button>
         </section>
       )}

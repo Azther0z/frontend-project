@@ -36,6 +36,9 @@ export type RentalEquipment = Pick<
   "_id" | "name" | "category" | "description" | "quantity" | "rentalRate" | "isActive"
 >;
 
+export type EquipmentInput = Pick<Equipment, "name" | "category" | "description" | "quantity" | "rentalRate">;
+export type EquipmentUpdate = Partial<EquipmentInput>;
+
 export interface RentalUser {
   _id: string;
   name: string;
@@ -61,6 +64,8 @@ export interface RentalInput {
   startDate: string;
   returnDate: string;
 }
+
+export type RentalUpdate = Partial<RentalInput>;
 
 export interface DateRangeValue {
   startDate: string | null;

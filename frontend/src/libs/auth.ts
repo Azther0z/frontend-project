@@ -1,6 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions } from "next-auth";
-import { authApi } from "./api";
+import { ApiError, authApi } from "./api";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -21,8 +21,9 @@ export const authOptions: NextAuthOptions = {
             role: account.role,
             backendToken: account.token,
           };
-        } catch {
-          return null;
+        } catch (cause) {
+          if (cause instanceof ApiError && cause.status === 401) return null;
+          throw new Error("The rental service is unavailable. Please try again.");
         }
       },
     }),

@@ -3,13 +3,16 @@ import type {
   ApiSuccess,
   AuthResponse,
   Equipment,
+  EquipmentInput,
+  EquipmentUpdate,
   LoginInput,
   RegisterInput,
   Rental,
   RentalInput,
+  RentalUpdate,
 } from "../../interface";
 
-const apiOrigin = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000").replace(/\/$/, "");
+const apiOrigin = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:5000").replace(/\/$/, "");
 
 export class ApiError extends Error {
   constructor(
@@ -34,6 +37,10 @@ async function request<T>(path: string, init: RequestInit = {}, token?: string):
   }
 
   const payload = (await response.json().catch(() => null)) as ApiSuccess<T> | ApiFailure | null;
+  if (response.status === 401 && token && typeof window !== "undefined") {
+    const { signOut } = await import("next-auth/react");
+    await signOut({ callbackUrl: "/" });
+  }
   if (!response.ok || !payload || payload.success === false) {
     throw new ApiError(
       payload && "error" in payload ? payload.error : "The request failed. Please try again.",
@@ -56,11 +63,20 @@ export const authApi = {
 };
 
 export const equipmentApi = {
-  list(token?: string) {
-    return request<Equipment[]>("/equipment", {}, token);
+  list() {
+    return request<Equipment[]>("/equipment");
   },
-  get(id: string, token?: string) {
-    return request<Equipment>(`/equipment/${encodeURIComponent(id)}`, {}, token);
+  get(id: string) {
+    return request<Equipment>(`/equipment/${encodeURIComponent(id)}`);
+  },
+  create(input: EquipmentInput, token: string) {
+    return request<Equipment>("/equipment", { method: "POST", body: JSON.stringify(input) }, token);
+  },
+  update(id: string, input: EquipmentUpdate, token: string) {
+    return request<Equipment>(`/equipment/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(input) }, token);
+  },
+  remove(id: string, token: string) {
+    return request<unknown>(`/equipment/${encodeURIComponent(id)}`, { method: "DELETE" }, token);
   },
 };
 
@@ -74,7 +90,7 @@ export const rentalsApi = {
   create(input: RentalInput, token: string) {
     return request<Rental>("/rentals", { method: "POST", body: JSON.stringify(input) }, token);
   },
-  update(id: string, input: RentalInput, token: string) {
+  update(id: string, input: RentalUpdate, token: string) {
     return request<Rental>(`/rentals/${encodeURIComponent(id)}`, {
       method: "PUT",
       body: JSON.stringify(input),

@@ -24,9 +24,6 @@ export default function RentalsPage() {
       router.replace("/login");
       return;
     }
-    if (session.user.role !== "member") {
-      return;
-    }
     let active = true;
     rentalsApi.list(session.backendToken ?? "").then((result) => {
       if (active) setRentals(result);
@@ -39,20 +36,20 @@ export default function RentalsPage() {
   }, [router, session, status]);
 
   if (status === "loading") return <LoadingMessage />;
-  if (session?.user.role === "admin") return <ErrorMessage>Admin rental management is the next implementation step.</ErrorMessage>;
   if (loading) return <LoadingMessage />;
 
   return (
     <section>
-      <h1>My rental requests</h1>
+      <h1>{session?.user.role === "admin" ? "Rental requests" : "My rental requests"}</h1>
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      {!error && rentals.length === 0 && <EmptyMessage>You have no rental requests.</EmptyMessage>}
+      {!error && rentals.length === 0 && <EmptyMessage>No rental requests found.</EmptyMessage>}
       <div className="rental-list">
         {rentals.map((rental) => {
           const cost = rental.equipment ? rentalCost(rental.equipment.rentalRate, rental.startDate, rental.returnDate) : null;
           return <article className="rental-card" key={rental._id}>
             <div>
               <h2>{rental.equipment?.name ?? "Equipment unavailable"}</h2>
+              {session?.user.role === "admin" && <p>From {rental.user?.name ?? "Unknown user"}</p>}
               <p>Quantity: {rental.quantity}</p>
               <p>{formatDate(rental.startDate)} to {formatDate(rental.returnDate)}</p>
               <p>Total cost: {cost ? `฿${money(cost.total)} THB` : "Unavailable"}</p>
@@ -60,7 +57,7 @@ export default function RentalsPage() {
             <div className="button-row">
               <Link className="button button-outline" href={`/rentals/${rental._id}`}>View</Link>
               <Link className="button button-outline" href={`/rentals/${rental._id}/edit`}>Edit</Link>
-              {session?.backendToken && <DeleteRentalButton rentalId={rental._id} returnTo="/rentals" token={session.backendToken} />}
+              {session?.backendToken && <DeleteRentalButton onDeleted={() => setRentals((current) => current.filter((item) => item._id !== rental._id))} rentalId={rental._id} returnTo="/rentals" token={session.backendToken} />}
             </div>
           </article>;
         })}

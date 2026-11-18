@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { authApi } from "@/libs/api";
 
 export default function AppNav() {
   const { data: session, status } = useSession();
-  const router = useRouter();
 
   async function logout() {
     if (session?.backendToken) {
@@ -17,9 +15,7 @@ export default function AppNav() {
         // The local session must end even when the backend logout request fails.
       }
     }
-    await signOut({ redirect: false });
-    router.push("/");
-    router.refresh();
+    await signOut({ callbackUrl: "/" });
   }
 
   return (

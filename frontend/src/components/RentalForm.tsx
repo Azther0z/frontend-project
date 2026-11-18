@@ -4,7 +4,7 @@ import { FormEvent, useMemo, useState } from "react";
 import type { DateRangeValue, RentalEquipment, RentalInput } from "../../interface";
 import DateRangeInput from "@/components/DateRangeInput";
 import { ErrorMessage } from "@/components/Feedback";
-import { addDays, todayUtc } from "@/libs/dates";
+import { latestReturnDate, todayUtc } from "@/libs/dates";
 import { money, rentalCost } from "@/libs/rental-cost";
 
 export default function RentalForm({
@@ -26,7 +26,6 @@ export default function RentalForm({
   const [error, setError] = useState("");
   const [dateError, setDateError] = useState("");
   const cost = useMemo(() => rentalCost(equipment.rentalRate, range.startDate, range.returnDate), [equipment.rentalRate, range]);
-  const maxQuantity = Math.min(3, equipment.quantity);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -36,12 +35,12 @@ export default function RentalForm({
       setDateError("Choose a start date and a return date.");
       return;
     }
-    if (range.startDate < todayUtc() || range.returnDate < range.startDate || range.returnDate > addDays(range.startDate, 7)) {
-      setDateError("Choose a valid date range. The return date can be at most seven days after the start date.");
+    if (range.startDate < todayUtc() || range.returnDate < range.startDate || range.returnDate > latestReturnDate(range.startDate)) {
+      setDateError("Choose a valid date range of at most seven days, counting both start and return dates.");
       return;
     }
-    if (quantity < 1 || quantity > maxQuantity) {
-      setError("Choose a quantity from 1 to the available limit.");
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 3) {
+      setError("Choose a whole-number quantity from 1 to 3.");
       return;
     }
     setPending(true);
@@ -63,13 +62,12 @@ export default function RentalForm({
         <p>Category: {equipment.category}</p>
         <p>Rental Rate: ฿{money(equipment.rentalRate)} / day</p>
       </section>
-      <label className="field"><span>Quantity</span><input max={maxQuantity} min={1} onChange={(event) => setQuantity(Number(event.target.value))} required type="number" value={quantity} /></label>
-      <div className="field"><span>Date range (calendar)</span><DateRangeInput error={dateError} onChange={(next) => { setRange(next); setDateError(""); }} value={range} /></div>
+      <label className="field"><span>Quantity</span><input disabled={pending} max={3} min={1} onChange={(event) => setQuantity(Number(event.target.value))} required step={1} type="number" value={quantity} /></label>
+      <div className="field"><span>Date range (calendar)</span><DateRangeInput disabled={pending} error={dateError} onChange={(next) => { setRange(next); setDateError(""); }} value={range} /></div>
       <p className="total-cost">
         Total Cost: ฿{money(equipment.rentalRate)} × {cost?.days ?? "days"} = {cost ? `฿${money(cost.total)}` : "—"} THB <span>(both dates count)</span>
       </p>
-      <button className="button button-primary" disabled={pending || maxQuantity < 1} type="submit">{pending ? "Saving…" : submitLabel}</button>
-      {maxQuantity < 1 && <p className="field-error">This equipment is not available to request.</p>}
+      <button className="button button-primary" disabled={pending} type="submit">{pending ? "Saving…" : submitLabel}</button>
     </form>
   );
 }

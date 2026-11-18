@@ -42,7 +42,7 @@ export default function RentalEditPage({ rentalId }: { rentalId: string }) {
   return (
     <section className="content-medium">
       <h1>Edit rental request</h1>
-      {session.user.role === "admin" && <p className="owner-label">From {rental.user?.name ?? "Unknown user"}</p>}
+      <p className="owner-label">Rented by: {rental.user?.name ?? "Unknown user"}</p>
       <RentalForm
         equipment={rental.equipment}
         initialQuantity={rental.quantity}

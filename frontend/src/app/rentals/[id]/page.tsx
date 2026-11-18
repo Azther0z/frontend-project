@@ -45,7 +45,7 @@ export default function RentalDetailPage({ params }: { params: Promise<{ id: str
   return (
     <section className="content-medium">
       <h1>Rental request</h1>
-      {session?.user.role === "admin" && <p className="owner-label">From {rental.user?.name ?? "Unknown user"}</p>}
+      <p className="owner-label">Rented by: {rental.user?.name ?? "Unknown user"}</p>
       <div className="detail-panel">
         <h2>{rental.equipment?.name ?? "Equipment unavailable"}</h2>
         {rental.equipment && <>

@@ -30,14 +30,27 @@ test("guest browsing and real member create, view, edit, delete flow", async ({ 
   await page.getByRole("button", { name: "Rent", exact: true }).click();
   await expect(page).toHaveURL(/\/rentals\/[a-f0-9]+$/);
   await expect(page.getByText("Quantity: 2", { exact: true })).toBeVisible();
+  await expect(page.getByText("Rented by: Demo Member", { exact: true })).toBeVisible();
   await page.getByRole("link", { name: "Edit", exact: true }).click();
+  await expect(page.getByText("Rented by: Demo Member", { exact: true })).toBeVisible();
   await page.getByLabel("Quantity", { exact: true }).fill("1");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page).toHaveURL(/\/rentals\/[a-f0-9]+$/);
   await expect(page.getByText("Quantity: 1", { exact: true })).toBeVisible();
   await page.getByRole("link", { name: "Rental", exact: true }).click();
   const card = page.locator("article").filter({ has: page.getByRole("heading", { name: "Camera", exact: true }) }).last();
+  await expect(card).toContainText("Rented by: Demo Member");
   await card.getByRole("button", { name: "Delete", exact: true }).click();
+  const confirmation = page.getByRole("dialog", { name: "Delete rental request?" });
+  for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    const box = await confirmation.boundingBox();
+    expect(box).not.toBeNull();
+    expect(Math.abs(box!.x + box!.width / 2 - viewport.width / 2)).toBeLessThan(2);
+    expect(Math.abs(box!.y + box!.height / 2 - viewport.height / 2)).toBeLessThan(2);
+    expect(box!.width).toBeLessThanOrEqual(viewport.width - 40);
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await page.getByRole("dialog").getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(card).toBeVisible();
   const before = await page.locator("article").count();
@@ -68,7 +81,7 @@ test("admin equipment CRUD and managing a member rental at the current rate", as
   await expect(page).toHaveURL(/\/equipments\/[a-f0-9]+$/);
   const equipmentId = page.url().split("/").at(-1)!;
 
-  const api = "http://127.0.0.1:5000/api/v1";
+  const api = `${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:5000"}/api/v1`;
   const member = await request.post(`${api}/auth/login`, { data: { email: "member@example.com", password: "DemoPass123!" } });
   expect(member.ok()).toBeTruthy();
   const { data: { token } } = await member.json();
@@ -79,14 +92,14 @@ test("admin equipment CRUD and managing a member rental at the current rate", as
 
   await page.getByRole("link", { name: "Rental", exact: true }).click();
   const card = page.locator("article").filter({ has: page.getByRole("heading", { name, exact: true }) });
-  await expect(card).toContainText("From Demo Member");
+  await expect(card).toContainText("Rented by: Demo Member");
   await card.getByRole("link", { name: "View", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/rentals/${rental._id}$`));
-  await expect(page.getByText("From Demo Member", { exact: true })).toBeVisible();
+  await expect(page.getByText("Rented by: Demo Member", { exact: true })).toBeVisible();
   await expect(page.getByText(/Total cost:/)).toContainText("฿1.01");
   await page.getByRole("link", { name: "Edit", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/rentals/${rental._id}/edit$`));
-  await expect(page.getByText("From Demo Member", { exact: true })).toBeVisible();
+  await expect(page.getByText("Rented by: Demo Member", { exact: true })).toBeVisible();
   await page.getByLabel("Quantity", { exact: true }).fill("3");
   // An existing completed range must allow a new start more than seven days away.
   await page.locator("button.date-range-trigger").click();

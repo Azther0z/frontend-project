@@ -143,7 +143,7 @@ The proposed interfaces are in [SHARED-CONTRACTS.md](SHARED-CONTRACTS.md).
 | `EquipmentList` / `EquipmentCard` | Guest cards with linked names only, member cards with Rent, or admin rows with View/Edit/Delete and an Add action |
 | `EquipmentDetail` | One item, with guest Login to request, member Rent, or admin Edit/Delete actions |
 | `EquipmentForm` | Shared equipment fields for Add and Save modes |
-| `RentalList` / `RentalDetails` | Request summaries and details, with owner labels in the admin variant |
+| `RentalList` / `RentalDetails` | Request summaries and details, with “Rented by” names for both roles |
 | `RentalForm` | Fixed equipment, quantity, one date-range calendar input, cost, and Rent or Save |
 | `DateRangeInput` | One visible input and a calendar that selects both start and return dates |
 | `Feedback` / `ConfirmDialog` | Confirmed inline loading/errors and Cancel/Delete confirmation |

@@ -49,7 +49,7 @@ export default function RentalsPage() {
           return <article className="rental-card" key={rental._id}>
             <div>
               <h2>{rental.equipment?.name ?? "Equipment unavailable"}</h2>
-              {session?.user.role === "admin" && <p>From {rental.user?.name ?? "Unknown user"}</p>}
+              <p>Rented by: {rental.user?.name ?? "Unknown user"}</p>
               <p>Quantity: {rental.quantity}</p>
               <p>{formatDate(rental.startDate)} to {formatDate(rental.returnDate)}</p>
               <p>Total cost: {cost ? `฿${money(cost.total)} THB` : "Unavailable"}</p>

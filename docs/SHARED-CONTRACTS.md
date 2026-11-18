@@ -15,6 +15,11 @@ the original proposal; these are the intentional implementation differences:
 - API helpers unwrap `data`: list calls return `Equipment[]` / `Rental[]`, and
   record calls return the record. Pages do not read a second `.data` property.
 - List `count` is not exposed because the UI renders the full returned array.
+- `imageUrl` may be a direct image or Google Drive file-sharing URL. The UI
+  resolves Drive links for display but keeps the original stored value.
+- Equipment reads/writes now include optional `imageUrl`; omitted updates preserve
+  the image, and an empty string clears it. Public catalog query parameters
+  (`q`, `category`) are handled on the Next.js page, not by the Express API.
 - Equipment writes accept `EquipmentInput` or `EquipmentUpdate`; rental updates
   accept `RentalUpdate`. Shared request fields keep the backend's names.
 - NextAuth restores its JWT session directly. It does not currently call
@@ -94,6 +99,7 @@ export interface Equipment {
   description: string;
   quantity: number;
   rentalRate: number;
+  imageUrl?: string; // optional direct HTTP(S) image URL; empty means no image
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -101,7 +107,7 @@ export interface Equipment {
 
 export type EquipmentInput = Pick<
   Equipment,
-  "name" | "category" | "description" | "quantity" | "rentalRate"
+  "name" | "category" | "description" | "quantity" | "rentalRate" | "imageUrl"
 >;
 export type EquipmentUpdate = Partial<EquipmentInput>;
 
@@ -113,6 +119,7 @@ export interface RentalEquipment {
   description: string;
   quantity: number;
   rentalRate: number;
+  imageUrl?: string; // optional direct HTTP(S) image URL; empty means no image
   isActive: boolean;
 }
 

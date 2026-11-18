@@ -238,6 +238,39 @@ loading-time improvement: server/API latency and network conditions still
 matter. Verify server HTML, browser requests, and mutation freshness using
 `frontend/tests/equipment-rendering.spec.ts`.
 
+## Optional catalog search and linked images
+
+The user confirmed these additions after the rendering optimization. They use
+existing course concepts: HTML forms, query strings, Server Components, local
+state, and the Image component. They add no external package.
+
+`/equipments` reads `q` and `category` from its server `searchParams`. A GET form
+preserves both values in the URL. The server filters name/description and
+category before rendering, so there is no new browser equipment-read request.
+Category options come from the original full active list, with trimmed,
+case-insensitive keys; admin entry remains free text. Counts, empty feedback,
+and Reset filters are part of this view. Deleting from a filtered list refreshes
+its current URL; deleting from a detail page goes to the catalog.
+
+The optional `imageUrl` field is stored in MongoDB and included in equipment
+responses and populated rental equipment. The admin form uses a small client
+`EquipmentImage` preview with load/error callbacks. A nonempty URL must load as
+an image before submission. Standard Google Drive file links (`/file/d/…`,
+`/open?id=…`, `/uc?id=…`, and thumbnail links) resolve to the public thumbnail
+endpoint for display, preserving `resourcekey`. Store the original link so it
+remains familiar during edits. Drive access must be Anyone with the link
+(Viewer); this does not grant access to private files. Images are also shown on catalog/detail pages and
+rental summaries. Clearing the field removes the image. URL syntax is checked
+on both sides; image availability is checked by the browser.
+
+`next/image` uses `unoptimized` for these user-provided URLs: the browser loads
+the source directly rather than sending arbitrary hosts through the Next.js
+image optimization proxy. No image binary is uploaded or stored. HTTP(S) links
+can still fail because of removal, authentication, hotlink restrictions, or
+browser restrictions; those failures show a fallback. The server does not
+fetch remote URLs to check their content. Equipment text remains server-rendered;
+only each image's loading/error behavior is a Client Component.
+
 ## Proposed implementation order
 
 The retained work split assigns account forms, guest and member equipment screens, and member rentals to Saint.

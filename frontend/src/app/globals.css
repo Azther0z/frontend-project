@@ -119,3 +119,18 @@ p { margin: 0 0 12px; }
 .field textarea { resize: vertical; }
 .confirm-dialog::backdrop { background: #0006; }
 .calendar-popover > .text-button { margin-right: 20px; }
+
+.catalog-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; margin-bottom: 20px; padding: 20px; border: 1px solid var(--line); background: var(--soft); }
+.catalog-filters > .field:first-child { flex: 1; min-width: 240px; }
+.catalog-filters select { min-width: 180px; }
+.catalog-filters .button { min-height: 48px; }
+.result-count { margin-bottom: 18px; color: var(--muted); }
+.field-help { margin: 0; color: var(--muted); font-size: 14px; font-weight: 400; }
+.equipment-image-frame { width: 100%; margin: 0 0 16px; }
+.equipment-image { display: block; width: 100%; height: auto; aspect-ratio: 8 / 5; object-fit: contain; border: 1px solid var(--line); background: var(--soft); }
+.equipment-image-frame figcaption { padding-top: 6px; color: var(--muted); font-size: 14px; font-weight: 400; }
+.equipment-image-fallback { display: grid; place-items: center; aspect-ratio: 8 / 5; border: 1px solid var(--line); color: var(--muted); background: var(--soft); font-weight: 400; }
+.equipment-admin-list .equipment-card.has-image { grid-template-columns: 160px minmax(0, 1fr) auto; }
+.equipment-admin-list .equipment-card.has-image > .equipment-image-frame { grid-column: 1; grid-row: 1 / 4; align-self: start; }
+.equipment-admin-list .equipment-card.has-image > h2, .equipment-admin-list .equipment-card.has-image > p, .equipment-admin-list .equipment-card.has-image > .equipment-facts { grid-column: 2; }
+.equipment-admin-list .equipment-card.has-image > .button-row { grid-column: 3; }

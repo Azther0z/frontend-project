@@ -26,6 +26,7 @@ export interface Equipment {
   description: string;
   quantity: number;
   rentalRate: number;
+  imageUrl?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -33,10 +34,10 @@ export interface Equipment {
 
 export type RentalEquipment = Pick<
   Equipment,
-  "_id" | "name" | "category" | "description" | "quantity" | "rentalRate" | "isActive"
+  "_id" | "name" | "category" | "description" | "quantity" | "rentalRate" | "imageUrl" | "isActive"
 >;
 
-export type EquipmentInput = Pick<Equipment, "name" | "category" | "description" | "quantity" | "rentalRate">;
+export type EquipmentInput = Pick<Equipment, "name" | "category" | "description" | "quantity" | "rentalRate" | "imageUrl">;
 export type EquipmentUpdate = Partial<EquipmentInput>;
 
 export interface RentalUser {

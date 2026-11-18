@@ -46,8 +46,27 @@ Registration uses `{ name, email, tel, password, role }`.
 Role defaults to `member`. This backend also accepts public registration with `role: "admin"`.
 Public admin registration does not provide safe admin account control for public use.
 
-Equipment uses `{ name, category, description, quantity, rentalRate }`.
+Equipment uses `{ name, category, description, quantity, rentalRate, imageUrl? }`.
 Name is unique. Quantity is a nonnegative integer. Rental rate is nonnegative.
+Category remains free text and is trimmed when saved.
+
+`imageUrl` is optional and defaults to an empty string. Existing records without
+an image remain supported. It accepts an absolute HTTP(S) URL without embedded
+credentials, up to 2048 characters. Invalid image URL writes return HTTP 400.
+Omitting `imageUrl` from an update keeps its value; sending `""` removes it.
+The stored value can be a direct image URL or a Google Drive sharing URL. The
+UI resolves supported Drive file links to Google's public thumbnail endpoint,
+including any `resourcekey`, and preserves the original sharing URL in storage.
+Drive permissions must allow Anyone with the link (Viewer).
+The API validates the URL format and never downloads it. The admin form checks
+that an image actually loads in the browser before saving; saved links can later
+fail and are handled by the UI fallback. Rental equipment reads include this
+optional field as well.
+
+The browser catalog accepts `q` and `category` query parameters and filters the
+full public equipment list on the Next.js server. These are browser-page query
+parameters, not new Express API filters. Category choices are derived from the
+full active list, grouping trimmed case-insensitive values.
 
 Rental input uses `{ equipment, quantity, startDate, returnDate }`.
 `equipment` is a MongoDB ID. Dates use `YYYY-MM-DD`.

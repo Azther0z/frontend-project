@@ -86,15 +86,28 @@ npm run lint
 npx tsc --noEmit
 npm run test:unit
 npx playwright install chromium
-npm run test:e2e
 npm run build
 ```
 
 Browser tests create and remove local test records. Use the disposable database,
-not a shared deployment. Restart `npm run demo` before a full test run to reset
-its data and the supplied API's limit of 100 requests per ten minutes.
-The eleven browser/API tests run against real Express and MongoDB, without mocked
-HTTP responses. See [the handoff](docs/CONTRIBUTION-HANDOFF.md#continuation-checkpoint)
+not a shared deployment. The backend retains its supplied limit of 100 requests
+per ten minutes, so run the fifteen browser/API tests in these two batches.
+Restart `npm run demo` in the backend terminal and wait for `Demo ready` before
+each batch (keep the frontend running):
+
+```sh
+npm run test:e2e -- tests/catalog-features.spec.ts
+```
+
+Restart the demo backend, then run:
+
+```sh
+npm run test:e2e -- tests/access.spec.ts tests/equipment-rendering.spec.ts tests/rentals.spec.ts
+```
+
+All application API calls use real Express and MongoDB. Image-loading tests use
+controlled HTTP image fixtures; the Drive regression uses controlled image
+responses. The user's actual public Drive image was also verified separately. See [the handoff](docs/CONTRIBUTION-HANDOFF.md#catalog-search-and-images-checkpoint)
 for the verified behavior and remaining review/deployment work.
 
 ## Rendering choices
@@ -109,6 +122,22 @@ client-side behavior.
 
 See [course evidence and component boundaries](docs/FRONTEND-PLAN.md#course-aligned-rendering-optimization)
 for the lecture pages and Assignment 12 examples supporting this design.
+
+## Additional catalog features
+
+Search the equipment catalog by name or description and combine it with a
+category filter. Categories are derived from existing equipment and grouped
+without regard to capitalization; admin category entry stays free text. The
+catalog shows result counts and no-results feedback. Search/category stay in
+the URL, and Reset filters clears both.
+
+Admins can optionally add an Image URL when creating or editing equipment.
+Use a direct HTTP(S) image link or paste a Google Drive file-sharing link, and
+wait for its preview before saving. Drive files must use General access → Anyone
+with the link (Viewer). Clearing
+the field removes the image. The URL is stored in MongoDB; no image file is
+uploaded. Images appear on equipment cards/details and rental forms. Broken
+saved links show a fallback. Equipment text still renders on the server.
 
 ## Deployment handoff
 

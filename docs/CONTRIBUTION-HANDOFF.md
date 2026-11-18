@@ -150,6 +150,53 @@ No FCP/LCP or deployed latency improvement is claimed. A follow-up measurement
 initially hit the unchanged API rate limit after the test suite; the disposable
 backend was reset and that measurement was repeated successfully.
 
+## Catalog search and images checkpoint
+
+Branch: `codex/catalog-search-and-images`, based on merged main `83f5af9`.
+The user requested these additional features after the original Figma scope:
+
+- Server-rendered name/description search and combined category filtering via
+  bookmarkable `q` and `category` URL parameters. Categories remain free text;
+  dropdown choices come from the full active catalog, grouping trimmed case
+  variants. Add result counts, no-results feedback, and Reset filters.
+- Preserve the active filters when an admin deletes from the catalog.
+- Optional `imageUrl` in equipment and populated rental equipment, with backend
+  format validation, readable HTTP 400 errors, browser image preview before
+  saving, removal by clearing the field, and a broken-image fallback.
+- Show linked images in catalog cards, equipment details, and rental forms.
+  The backend stores URLs and does not download images. `next/image` uses
+  `unoptimized` for direct browser loading from user-provided hosts.
+
+Verification on November 18, 2026:
+
+- Frontend lint, TypeScript, seven unit tests, and production build pass.
+- Four feature browser/API tests pass against real Express/MongoDB, a
+  controlled local HTTP image fixture, and controlled Drive image responses,
+  with no mocked application API responses.
+  They cover combined case-insensitive filters, category deduplication,
+  bookmarks, server HTML, no browser equipment reads, no results/reset, image
+  preview/save/removal, failed-image feedback, invalid API image URLs, and
+  preservation of filters after deletion.
+- All eleven existing browser/API regressions pass as a separate batch after
+  resetting the disposable backend to stay within its unchanged rate limit.
+- Swagger parses with an optional `imageUrl` field on read/create/update schemas;
+  backend JavaScript syntax and whitespace checks pass.
+- The admin catalog screenshot was visually checked for filter alignment,
+  image thumbnails, and equipment actions.
+
+Google Drive follow-up: standard file-sharing links now resolve to public
+thumbnail URLs when displayed, preserving resource keys and the original stored
+link. Failures include sharing guidance. Unit tests cover supported link forms,
+resource keys, and unrelated hosts. A real, unauthenticated browser check using
+the user's provided public image passed preview, save, detail reload, catalog,
+and edit-value preservation; the decoded image was 700 × 700. The user-provided file
+ID is not included in committed test fixtures. Controlled image responses keep
+the repeatable Drive regression independent of that external file's availability.
+
+These additions supplement the saved design screenshots; the original Figma
+captures do not show the later features. Production hosting and deployment
+remain outstanding. Existing deployment settings are in [README.md](../README.md).
+
 ## Build order
 
 1. Review and accept shared types, API functions, and auth state.

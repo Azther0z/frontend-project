@@ -13,7 +13,7 @@ export default function EquipmentActions({ equipmentId, role, variant }: {
     return <div className="button-row">
       {variant === "catalog" && <Link className="button button-outline" href={`/equipments/${equipmentId}`}>View</Link>}
       <Link className="button button-outline" href={`/equipments/${equipmentId}/edit`}>Edit</Link>
-      <EquipmentDeleteControl equipmentId={equipmentId} />
+      <EquipmentDeleteControl equipmentId={equipmentId} stayOnList={variant === "catalog"} />
     </div>;
   }
   if (role === "member") {

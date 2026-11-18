@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { notFound } from "next/navigation";
 import EquipmentActions from "@/components/EquipmentActions";
+import EquipmentImage from "@/components/EquipmentImage";
 import { ErrorMessage } from "@/components/Feedback";
 import { ApiError, equipmentApi, errorMessage } from "@/libs/api";
 import { authOptions } from "@/libs/auth";
@@ -20,6 +21,7 @@ export default async function EquipmentDetailPage({ params }: { params: Promise<
   return (
     <section className="content-medium">
       <h1>{item.name}</h1>
+      {item.imageUrl && <EquipmentImage key={item.imageUrl} loading="eager" name={item.name} src={item.imageUrl} />}
       <div className="detail-panel">
         <p>{item.description}</p>
         <p>Category: {item.category}</p>

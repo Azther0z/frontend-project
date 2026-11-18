@@ -177,6 +177,12 @@
  *             "example": 200,
  *             "description": "Rental rate per item per day."
  *           },
+ *           "imageUrl": {
+ *             "type": "string",
+ *             "maxLength": 2048,
+ *             "example": "https://example.com/equipment.jpg",
+ *             "description": "Optional absolute HTTP(S) image URL without embedded credentials. Omit on creation or send an empty string for no image. Omitted updates preserve the current URL; an empty string removes it. The API validates format without downloading the remote image."
+ *           },
  *           "isActive": {
  *             "type": "boolean",
  *             "default": true
@@ -216,6 +222,12 @@
  *             "example": 200,
  *             "description": "Rental rate per item per day."
  *           },
+ *           "imageUrl": {
+ *             "type": "string",
+ *             "maxLength": 2048,
+ *             "example": "https://example.com/equipment.jpg",
+ *             "description": "Optional absolute HTTP(S) image URL without embedded credentials. Omit on creation or send an empty string for no image. Omitted updates preserve the current URL; an empty string removes it. The API validates format without downloading the remote image."
+ *           },
  *           "isActive": {
  *             "type": "boolean",
  *             "default": true
@@ -252,6 +264,12 @@
  *             "minimum": 0,
  *             "example": 200,
  *             "description": "Rental rate per item per day."
+ *           },
+ *           "imageUrl": {
+ *             "type": "string",
+ *             "maxLength": 2048,
+ *             "example": "https://example.com/equipment.jpg",
+ *             "description": "Optional absolute HTTP(S) image URL without embedded credentials. Omit on creation or send an empty string for no image. Omitted updates preserve the current URL; an empty string removes it. The API validates format without downloading the remote image."
  *           },
  *           "isActive": {
  *             "type": "boolean",

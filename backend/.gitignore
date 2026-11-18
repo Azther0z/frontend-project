@@ -9,3 +9,5 @@ postman/
 .env.*
 !.env.example
 config/config.env
+.vercel/
+public/api-docs/

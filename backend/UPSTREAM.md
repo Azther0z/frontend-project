@@ -25,6 +25,15 @@ omitted updates preserve it. Routes, authentication, ownership checks, and stock
 behavior are unchanged. Category entry remains trimmed free text; browser
 catalog filtering happens on the Next.js server.
 
+Deployment additions: API handlers await a shared, reusable MongoDB connection
+and return 503 on connection failure. The CommonJS entry point exports the
+Express function for Vercel while preserving the local runner's named exports.
+Vercel alone trusts one proxy hop for client IP detection. The build copies
+Swagger static assets and generates OpenAPI into `public/api-docs`; documentation
+uses a relative API origin. A real HTTP/MongoDB startup test checks connection
+reuse, failure, recovery, and the entry-point export. See
+[Deployment](../docs/DEPLOYMENT.md) for hosting and environment settings.
+
 ## Configured database
 
 ```sh

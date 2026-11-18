@@ -29,7 +29,7 @@ the original proposal; these are the intentional implementation differences:
   Protected HTTP 401 responses end the NextAuth session and navigate Home;
   login 401 remains inline.
 - `EquipmentForm` handles both Add and Save. `RentalForm` serves member creation
-  and both roles' edits; the edit page supplies the admin owner label.
+  and both roles' edits; the edit page supplies the renter label for both roles.
 - `DeleteRecordButton` shares a native modal dialog across equipment and rental
   deletion. Rental list pages remove successful deletions from their local arrays.
   Equipment lists refresh their Server Component after deletion; detail pages
@@ -290,7 +290,7 @@ export interface DateRangeInputProps {
 export interface RentalFormProps {
   mode: "create" | "edit";
   equipment: RentalEquipment | null; // fixed summary, never a list of choices
-  ownerLabel?: string; // admin edit variant
+  ownerLabel?: string; // renter identity for both roles
   initialValues?: RentalFormInput;
   onSubmit(values: RentalFormInput): Promise<void>;
   pending: boolean;

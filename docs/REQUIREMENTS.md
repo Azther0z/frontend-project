@@ -38,7 +38,7 @@ This page describes the November 16 saved Figma revision, including its agreed b
 - Members view their requests at `/rentals`. Each request has View, Edit, and Delete actions.
 - Rental details have a dedicated `/rentals/{id}` page. Editing has a dedicated `/rentals/{id}/edit` page.
 - Lists and details show equipment information, quantity, start date, return date, and total cost.
-- The admin variants use the same rental paths and also display the request owner as “From {owner}.”
+- Both roles use the same rental paths and display the request owner as “Rented by: {owner}” on the rental list, details, and edit views, following the user’s November 18 display update.
 - Admins manage rental requests through View, Edit, and Delete actions. There is no admin rental creation frame.
 
 ## Cost
@@ -76,7 +76,7 @@ These quantity and date limits are intentionally absent from the Figma frames.
 ## Confirmed implementation details
 
 The user confirmed inline loading and error messages, preserved form values after failures, and disabled submission while saving on November 18, 2026.
-Deletion requires a confirmation with Cancel and Delete.
+Deletion requires a confirmation with Cancel and Delete. The shared native dialog is centered in the viewport, including on mobile.
 The single range input opens a one-month calendar popup with previous/next controls and start-then-end selection.
 These decisions supplement Figma. They do not establish that the saved design or screenshots contain these details.
 The [frontend plan](FRONTEND-PLAN.md#confirmed-decisions) records the full decisions. Empty and success state wording remains an implementation detail.

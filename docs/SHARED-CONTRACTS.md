@@ -19,13 +19,16 @@ the original proposal; these are the intentional implementation differences:
   accept `RentalUpdate`. Shared request fields keep the backend's names.
 - NextAuth restores its JWT session directly. It does not currently call
   `/auth/me`, so there is no implemented `authApi.me` or `_id` mapping path.
-- Equipment reads are public and omit bearer tokens. Protected HTTP 401 responses
-  end the NextAuth session and navigate Home; login 401 remains inline.
+- Equipment reads are public and omit bearer tokens. Catalog/detail reads now
+  run in Server Components; small delete controls use the browser session.
+  Protected HTTP 401 responses end the NextAuth session and navigate Home;
+  login 401 remains inline.
 - `EquipmentForm` handles both Add and Save. `RentalForm` serves member creation
   and both roles' edits; the edit page supplies the admin owner label.
 - `DeleteRecordButton` shares a native modal dialog across equipment and rental
-  deletion. List pages remove successful deletions from their local arrays;
-  detail pages navigate to the list.
+  deletion. Rental list pages remove successful deletions from their local arrays.
+  Equipment lists refresh their Server Component after deletion; detail pages
+  navigate to the list.
 
 Both teammates should still review these interfaces before merging. Automated
 verification is recorded in the [handoff](CONTRIBUTION-HANDOFF.md#continuation-checkpoint).

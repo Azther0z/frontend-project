@@ -186,7 +186,7 @@ The class demo intentionally keeps Member and Admin registration, matching the s
 
 ## React boundaries and open details
 
-Keep route files small. Interactive forms, browser data loaders, and the NextAuth provider use Client Components with `"use client"`.
+Keep route files small. Interactive forms, private rental data loaders, and the NextAuth provider use Client Components with `"use client"`. Equipment catalog/detail data now loads in Server Components as described below.
 The root layout remains a Server Component and renders the client NextAuth provider around page content.
 Do not read browser token storage during server rendering. Reload affected records after successful API changes.
 
@@ -194,6 +194,49 @@ The November 18 decisions specify inline loading/errors, preserved values after 
 The calendar popup shows one month with previous/next controls and start-then-end selection.
 These details supplement the Figma wireframe. Empty and success state wording remains a routine implementation detail.
 The confirmed class demo scope does not require mobile layouts.
+
+## Course-aligned rendering optimization
+
+The `codex/server-rendered-equipment` branch follows patterns verified in the
+supplied course material, rather than treating every available Next.js feature
+as a project requirement:
+
+- [Class 05](pdf/Class05_Form_Interaction_Event-957520-17877366596774.pdf) explains
+  the server/client boundary, server rendering, and client-side interactivity.
+- [Week 09 Data Fetching](pdf/W09_DataFetching-957520-17908413706988.pdf), page 3,
+  recommends server-side fetching and avoiding client/server waterfalls.
+  Pages 5–6 and 14 cover parallel requests and `Promise.all`; page 15 explicitly
+  teaches `cache: "no-store"`; page 38 builds a server-rendered catalog; pages
+  47–50 cover Suspense and loading UI.
+- The available local Assignment 12 checkout
+  `swdevprac2-69-1-a12-swdevprac2-69-1-kormuyang` at commit `027916f` uses an async
+  `src/components/VenueCatalog.tsx`, an async venue detail page, server-side
+  `getServerSession` in `TopMenu.tsx`, and a client `InteractiveCard.tsx`.
+  This is a local source check; Saint's personal reference link above returned
+  GitHub 404 with the current account and was not independently verified.
+
+Implementation boundaries:
+
+| Area | Rendering and data fetching |
+|---|---|
+| Home/root layout | Existing Server Components; Home remains statically renderable |
+| Equipment catalog and detail | Server Components fetch public equipment and resolve the session in parallel; cards, descriptions, prices, role-specific links, and page variants render on the server |
+| Equipment deletion | Small `EquipmentDeleteControl` Client Component reads the live session token and reuses the existing confirmation/button; successful deletion refreshes the server-rendered list |
+| Loading/missing equipment | Route loading UI and a dedicated server-rendered not-found page |
+| Forms, calendar, cost preview, and private rentals | Existing Client Components; their state and authenticated API behavior remain unchanged |
+
+The existing API helper uses explicit `no-store`, so catalog reads remain fresh
+when an admin changes rates or deletes equipment. No persistent data cache,
+cache invalidation framework, Server Actions, or extra libraries are added by
+this optimization. Some lecture default-cache statements describe older
+Next.js behavior; the implementation uses the installed Next.js 16 guides and
+an explicit cache option instead of depending on those historical defaults.
+
+The change removes the browser's equipment-read request and the wait for a
+client session before starting that request. It does not establish a universal
+loading-time improvement: server/API latency and network conditions still
+matter. Verify server HTML, browser requests, and mutation freshness using
+`frontend/tests/equipment-rendering.spec.ts`.
 
 ## Proposed implementation order
 

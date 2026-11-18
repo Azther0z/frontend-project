@@ -1,53 +1,32 @@
-"use client";
-
-import Link from "next/link";
-import { useEffect, useState, use } from "react";
-import { useSession } from "next-auth/react";
-import type { Equipment } from "../../../../interface";
-import DeleteEquipmentButton from "@/components/DeleteEquipmentButton";
-import { equipmentApi, errorMessage } from "@/libs/api";
+import { getServerSession } from "next-auth";
+import { notFound } from "next/navigation";
+import EquipmentActions from "@/components/EquipmentActions";
+import { ErrorMessage } from "@/components/Feedback";
+import { ApiError, equipmentApi, errorMessage } from "@/libs/api";
+import { authOptions } from "@/libs/auth";
 import { money } from "@/libs/rental-cost";
-import { ErrorMessage, LoadingMessage } from "@/components/Feedback";
 
-export default function EquipmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id: routeId } = use(params);
-  const [item, setItem] = useState<Equipment | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const { data: session, status } = useSession();
-
-  useEffect(() => {
-    if (status === "loading") return;
-    let active = true;
-    equipmentApi.get(routeId).then((result) => {
-      if (active) setItem(result);
-    }).catch((cause: unknown) => {
-      if (active) setError(errorMessage(cause));
-    }).finally(() => {
-      if (active) setLoading(false);
-    });
-    return () => { active = false; };
-  }, [routeId, session?.backendToken, status]);
+export default async function EquipmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const [result, session] = await Promise.all([
+    equipmentApi.get(id).then((item) => ({ item, error: null }))
+      .catch((error: unknown) => ({ item: null, error })),
+    getServerSession(authOptions),
+  ]);
+  if (result.error instanceof ApiError && result.error.status === 404) notFound();
+  if (!result.item) return <ErrorMessage>{errorMessage(result.error)}</ErrorMessage>;
+  const item = result.item;
 
   return (
     <section className="content-medium">
-      {loading && <LoadingMessage />}
-      {error && <ErrorMessage>{error}</ErrorMessage>}
-      {item && <>
-        <h1>{item.name}</h1>
-        <div className="detail-panel">
-          <p>{item.description}</p>
-          <p>Category: {item.category}</p>
-          <p>Quantity: {item.quantity}</p>
-          <p>Rental Rate: ฿{money(item.rentalRate)} / day</p>
-        </div>
-        {status !== "authenticated" ? <Link className="button button-outline" href="/login">Login to request</Link>
-          : session.user.role === "member" ? <Link className="button button-primary" href={`/equipments/${item._id}/rent`}>Rent</Link>
-          : <div className="button-row">
-            <Link className="button button-outline" href={`/equipments/${item._id}/edit`}>Edit</Link>
-            {session.backendToken && <DeleteEquipmentButton equipmentId={item._id} token={session.backendToken} />}
-          </div>}
-      </>}
+      <h1>{item.name}</h1>
+      <div className="detail-panel">
+        <p>{item.description}</p>
+        <p>Category: {item.category}</p>
+        <p>Quantity: {item.quantity}</p>
+        <p>Rental Rate: ฿{money(item.rentalRate)} / day</p>
+      </div>
+      <EquipmentActions equipmentId={item._id} role={session?.user.role ?? null} variant="detail" />
     </section>
   );
 }

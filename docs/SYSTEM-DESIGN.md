@@ -21,14 +21,14 @@ flowchart LR
     Visitor --> UI
     Next -->|HTML and assets| UI
     Auth <-->|session| Next
-    Next -->|credentials login| Express
+    Next -->|credentials login and public equipment reads| Express
     UI --> Client
     Auth -->|token| Client
     Client -->|JSON, optional Bearer token\npublic requests omit token| Express
     Express -->|read and write| DB
 ```
 
-Next.js and Express are separate logical services. Their hosting arrangement remains open. Next.js serves the interface. React runs in the browser after the page loads. NextAuth manages the session through its Next.js handler. The credentials handler calls backend login.
+Next.js and Express are separate logical services. Their hosting arrangement remains open. Next.js serves the interface. React runs in the browser after the page loads. NextAuth manages the session through its Next.js handler. The credentials handler calls backend login. Equipment catalog/detail Server Components also call the public backend reads and render the returned content. Their equipment reads and server session lookup start in parallel.
 Protected API helpers send the backend token with `Authorization: Bearer <token>`. Public requests omit the token.
 The diagram groups session handling logically. It does not describe cookie storage or every request between the browser and NextAuth.
 

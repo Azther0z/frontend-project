@@ -114,6 +114,42 @@ Remaining work:
 Deployment settings and local commands are in [README.md](../README.md).
 No hosting accounts, presentation booking, or submission system were changed.
 
+## Rendering optimization checkpoint
+
+Branch: `codex/server-rendered-equipment`, based on merged main `52b26f6`.
+Before editing, the supplied course PDFs and the available local Assignment 12
+checkout were inspected. The [frontend plan](FRONTEND-PLAN.md#course-aligned-rendering-optimization)
+records the exact lecture pages, checked example files, and the inaccessible
+Saint reference link separately.
+
+- Equipment catalog/detail pages are async Server Components. Public equipment
+  reads and the server session lookup start in parallel; role-specific links
+  and equipment content render on the server.
+- Only the equipment delete control uses browser session state. Forms, calendar,
+  private rentals, and Home keep their existing boundaries.
+- Keep explicit `no-store` and refresh server content after equipment deletion.
+  Add route loading feedback and a missing-equipment page.
+- Frontend lint, TypeScript, both unit tests, and production build pass.
+- All eleven production browser/API tests pass against real Express and MongoDB,
+  including initial HTML, no browser equipment GETs, role variants, updated
+  prices after reload, deletion from the server-rendered list, and missing items.
+
+A fresh guest Chromium context was measured before and after on the local
+production build, using the same `/equipments` navigation and waiting for the
+Camera heading and network idle:
+
+| Observation | Before | After |
+|---|---|---|
+| Equipment cards present in the server HTML | No | Yes |
+| Browser equipment-read requests | 1 | 0 |
+| Script resource encoded-body bytes | 149,637 | 148,685 |
+
+The JavaScript reduction in this local sample is 952 bytes. This measures the
+recorded script resources, not a universal bundle-size or load-time guarantee.
+No FCP/LCP or deployed latency improvement is claimed. A follow-up measurement
+initially hit the unchanged API rate limit after the test suite; the disposable
+backend was reset and that measurement was repeated successfully.
+
 ## Build order
 
 1. Review and accept shared types, API functions, and auth state.

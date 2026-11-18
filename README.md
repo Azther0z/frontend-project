@@ -93,9 +93,22 @@ npm run build
 Browser tests create and remove local test records. Use the disposable database,
 not a shared deployment. Restart `npm run demo` before a full test run to reset
 its data and the supplied API's limit of 100 requests per ten minutes.
-The eight browser/API tests run against real Express and MongoDB, without mocked
+The eleven browser/API tests run against real Express and MongoDB, without mocked
 HTTP responses. See [the handoff](docs/CONTRIBUTION-HANDOFF.md#continuation-checkpoint)
 for the verified behavior and remaining review/deployment work.
+
+## Rendering choices
+
+Equipment catalog and detail pages fetch data in Server Components. Equipment
+reads and the server session lookup start in parallel; the browser handles the
+small delete control and existing interactive forms. Public equipment content
+arrives in the server response instead of waiting for a browser API request.
+The API retains explicit `no-store` to show fresh equipment and current rates.
+Home remains statically renderable; private rental screens keep their existing
+client-side behavior.
+
+See [course evidence and component boundaries](docs/FRONTEND-PLAN.md#course-aligned-rendering-optimization)
+for the lecture pages and Assignment 12 examples supporting this design.
 
 ## Deployment handoff
 

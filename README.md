@@ -1,7 +1,7 @@
 # Equipment Rental System
 
 Saint and Poom's Course Project 2 lets members request equipment rentals and admins manage equipment and rental requests.
-This repository contains project documentation and 18 course PDFs. It does not contain the application yet.
+This repository contains the Next.js frontend, project documentation, and 18 course PDFs. The supplied backend remains a separate project.
 
 The updated [Figma design](https://www.figma.com/design/llQS6sjdaGY3OpBfXf7NVh/SW-DEV-PRAC-2?node-id=0-1) defines the base screens and product behavior. The [November 18 decisions](docs/FRONTEND-PLAN.md#confirmed-decisions) supplement it.
 The [Figma guide](docs/FIGMA.md) records the 20 screen frames and behavior note reviewed on November 16, 2026, after the agreed design updates.
@@ -26,9 +26,27 @@ Read the guides in this order:
 
 The planned application uses these directories:
 
-- `frontend/`: Next.js and TypeScript application.
+- `frontend/`: Next.js, TypeScript, Tailwind, and NextAuth application.
 - `backend/`: Copy of the supplied Express backend.
 - `docs/`: Project guides, Figma evidence, and course PDFs in `docs/pdf/`.
 
 The [supplied backend](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent) provides account, equipment, and rental APIs.
 Frontend and backend setup follows [FRONTEND-PLAN.md](docs/FRONTEND-PLAN.md).
+
+## Run the frontend
+
+Use Node.js 20.9 or newer. From the repository root, run:
+
+```sh
+cd frontend
+npm install
+cp .env.example .env.local
+npm run dev
+```
+
+Set `NEXTAUTH_SECRET` in `frontend/.env.local` to a private random value before login.
+Set `NEXT_PUBLIC_API_BASE_URL` to the backend origin. The default is `http://localhost:5000`.
+The backend needs a configured database before account or rental requests can succeed.
+
+The current implementation includes the shared authentication and API foundation, guest equipment browsing, and member rental creation, list, detail, edit, and delete pages.
+Admin equipment and rental management remain for the next implementation step.

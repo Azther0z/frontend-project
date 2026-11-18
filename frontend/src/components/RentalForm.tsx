@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import type { DateRangeValue, RentalEquipment, RentalInput } from "../../interface";
 import DateRangeInput from "@/components/DateRangeInput";
+import EquipmentImage from "@/components/EquipmentImage";
 import { ErrorMessage } from "@/components/Feedback";
 import { latestReturnDate, todayUtc } from "@/libs/dates";
 import { money, rentalCost } from "@/libs/rental-cost";
@@ -58,6 +59,7 @@ export default function RentalForm({
       {error && <ErrorMessage>{error}</ErrorMessage>}
       <section className="equipment-summary">
         <h2>{equipment.name}</h2>
+        {equipment.imageUrl && <EquipmentImage key={equipment.imageUrl} name={equipment.name} src={equipment.imageUrl} />}
         <p>{equipment.description}</p>
         <p>Category: {equipment.category}</p>
         <p>Rental Rate: ฿{money(equipment.rentalRate)} / day</p>

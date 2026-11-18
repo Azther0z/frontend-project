@@ -83,3 +83,12 @@ The unchanged member/admin captures remain from the November 15 review. These ar
 | [Admin equipment list](figma/admin-equipment-list.jpg) | Add, View, Edit, and Delete without Rent |
 | [Admin equipment detail](figma/admin-equipment-detail.jpg) | Edit and Delete without Rent |
 | [Admin rental editing](figma/admin-rental-edit.jpg) | Owner, single date-range input, cost formula, and Save |
+
+## Later confirmed catalog additions
+
+On November 18, the user additionally requested equipment search, data-derived
+category filtering, result counts, reset/empty feedback, and optional linked
+images with preview and failure handling, including Google Drive file links. These additions are recorded in
+[REQUIREMENTS.md](REQUIREMENTS.md#additional-catalog-features-confirmed-november-18-2026).
+They supplement the original twenty-frame design. The saved screenshots above
+predate these additions and do not show their UI.

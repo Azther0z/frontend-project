@@ -30,7 +30,7 @@ const parseRentalInput = ({ quantity, startDate, returnDate }) => {
 };
 
 const populateRental = (query) => query
-  .populate("equipment", "name category description quantity rentalRate isActive")
+  .populate("equipment", "name category description quantity rentalRate imageUrl isActive")
   .populate("user", "name email tel role");
 
 exports.getRentals = async (req, res, next) => {

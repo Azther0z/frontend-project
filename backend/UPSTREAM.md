@@ -17,7 +17,13 @@ Local domain change confirmed on November 18, 2026: rental creation and updates
 allow at most seven inclusive calendar days. June 10–16 is valid; June 10–17
 is rejected. The upstream revision allowed seven elapsed days; this local
 override aligns duration validation with the inclusive cost calculation.
-Routes, authentication, ownership checks, and stock behavior are unchanged.
+A later user-requested extension adds optional `Equipment.imageUrl`, format
+validation (HTTP(S), no embedded credentials, at most 2048 characters), readable
+HTTP 400 responses for invalid image writes, and that field in populated rental
+equipment. No remote image is fetched by the backend. Empty removes an image;
+omitted updates preserve it. Routes, authentication, ownership checks, and stock
+behavior are unchanged. Category entry remains trimmed free text; browser
+catalog filtering happens on the Next.js server.
 
 ## Configured database
 

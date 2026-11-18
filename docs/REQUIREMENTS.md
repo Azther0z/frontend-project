@@ -81,3 +81,28 @@ The single range input opens a one-month calendar popup with previous/next contr
 These decisions supplement Figma. They do not establish that the saved design or screenshots contain these details.
 The [frontend plan](FRONTEND-PLAN.md#confirmed-decisions) records the full decisions. Empty and success state wording remains an implementation detail.
 The [API guide](API.md#figma-integration) records cases where the fixed equipment form cannot satisfy backend validation.
+
+## Additional catalog features confirmed November 18, 2026
+
+These user-requested additions supplement the saved Figma frames:
+
+- All roles can search equipment by name or description, ignoring case and outer
+  whitespace, and combine that search with a category filter.
+- Admin category entry remains free text. Filter choices come from the full
+  active catalog, trim surrounding spaces, and group capitalization variants.
+  All categories is the default. Filtering does not shrink the category options.
+- The catalog shows the matching result count, a no-results message, and Reset
+  filters. Search and category are preserved in `q` and `category` URL parameters
+  so views can be reloaded or bookmarked. Reset clears both. Deletion from the
+  filtered admin list refreshes that same filtered URL.
+- Equipment forms accept an optional Image URL. A direct HTTP(S) link or Google Drive file-sharing link must load
+  an image preview before the form saves it. Drive files must be readable by
+  Anyone with the link (Viewer). The original link is stored; Drive file links
+  are resolved to a public thumbnail for display, preserving any resource key. Blank means no image; clearing the
+  field removes a previously saved URL. Invalid or non-image links show feedback
+  and preserve the other form values.
+- Linked images appear in catalog cards, equipment details, and rental-form
+  equipment summaries. An image that later becomes unavailable shows an Image
+  unavailable fallback while the equipment remains usable.
+- Only the URL is stored. The browser loads and checks the remote image; there
+  is no uploaded file or server-side remote-image download/proxy.

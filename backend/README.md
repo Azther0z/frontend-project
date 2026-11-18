@@ -19,6 +19,7 @@ A RESTful backend API for managing equipment and rental requests. It supports us
 - Public equipment listing and detail endpoints
 - Admin-only create, update, and delete operations
 - Equipment data includes name, category, description, available quantity, rental rate per item per day, and active status
+- Optional `imageUrl`: absolute HTTP(S), no embedded credentials, at most 2048 characters. Empty means no image; omitted updates preserve the current URL. Invalid image URL writes return 400. The backend does not download remote images.
 - Names are unique; available quantity is a nonnegative integer and rental rate is nonnegative
 - Equipment deletion is a soft delete; existing rental history remains available
 

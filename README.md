@@ -141,7 +141,8 @@ saved links show a fallback. Equipment text still renders on the server.
 
 ## Deployment handoff
 
-The application has not been deployed by this implementation.
+See [Deployment](docs/DEPLOYMENT.md) for the course-aligned two-project Vercel
+setup, Atlas configuration, environment variables, and verification steps.
 
 - Create a persistent MongoDB database and configure the backend's `MONGO_URI`,
   private `JWT_SECRET`, `JWT_EXPIRE`, and `JWT_COOKIE_EXPIRE`.

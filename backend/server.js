@@ -125,7 +125,6 @@ const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const hpp = require("hpp");
-const swaggerJsDoc = require("swagger-jsdoc");
 const swaggerUI = require("swagger-ui-express");
 const cors = require("cors");
 const connectDB = require("./config/db");
@@ -138,11 +137,14 @@ dotenv.config({ path: "./config/config.env" });
 if (process.env.MONGO_URI) {
   connectDB().catch((error) => {
     console.error(`Database connection failed: ${error.message}`);
-    process.exit(1);
   });
 }
 
 const app = express();
+
+// Vercel overwrites X-Forwarded-For at its proxy. Trust that one hop so
+// Express uses the client address for rate limiting instead of the proxy IP.
+if (process.env.VERCEL === "1") app.set("trust proxy", 1);
 
 app.use(helmet());
 // Include CORS headers on rejected requests too, including rate-limit errors.
@@ -165,35 +167,26 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
+app.use("/api/v1", async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch {
+    res.status(503).json({
+      success: false,
+      error: "Database unavailable. Please try again later.",
+    });
+  }
+});
+
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/equipment", equipment);
 app.use("/api/v1/rentals", rentals);
 
-const swaggerDocs = swaggerJsDoc({
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "Equipment Rental API",
-      version: "1.0.0",
-      description: "REST API for equipment management and rental requests.",
-    },
-    servers: [{
-      url: `http://localhost:${process.env.PORT || 5000}`,
-    }],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
-      },
-    },
-  },
-  apis: ["./routes/*.js", "./server.js"],
-});
-
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocs));
+const swaggerDocs = process.env.VERCEL === "1" ? undefined : require("./config/swagger")();
+app.get(/^\/api-docs$/, (req, res) => res.redirect(301, "/api-docs/"));
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocs,
+  process.env.VERCEL === "1" ? { swaggerOptions: { url: "/api-docs/openapi.json" } } : {}));
 
 app.get("/health", (req, res) => {
   res.status(200).json({
@@ -244,4 +237,8 @@ process.on("uncaughtException", (error) => {
   process.exit(1);
 });
 
-module.exports = { app, server };
+// Vercel's CommonJS entry point expects the Express function itself.
+// Keep named properties for the local demo runner and startup test.
+module.exports = app;
+module.exports.app = app;
+module.exports.server = server;

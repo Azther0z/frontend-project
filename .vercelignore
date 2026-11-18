@@ -1,0 +1,9 @@
+docs/
+**/.env*
+**/config/config.env
+**/node_modules/
+**/.next/
+**/.vercel/
+**/test-results/
+**/playwright-report/
+**/*.tsbuildinfo

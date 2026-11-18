@@ -99,7 +99,9 @@ server.js        Application entry point
    npm run dev
    ```
 
-The API runs on `http://localhost:5000` by default. Use a different `PORT` if PJ01 is running on port 5000. With `MONGO_URI` blank, the server exposes the welcome page, Swagger UI, and health endpoint; database-backed APIs require a configured database.
+The API runs on `http://localhost:5000` by default. Use a different `PORT` if PJ01 is running on port 5000. With `MONGO_URI` blank, the server exposes the welcome page, Swagger UI, and health endpoint; database-backed APIs return 503 until a database is configured. API requests await a shared MongoDB connection, reuse it while connected, and retry after a failed connection attempt.
+
+For the two-project Vercel deployment and Atlas settings, see [Deployment](../docs/DEPLOYMENT.md).
 
 ## API Routes
 
@@ -153,4 +155,4 @@ Send `Authorization: Bearer <JWT>` with protected requests. In Swagger, click **
 npm test
 ```
 
-`npm test` performs the same entry-point syntax check as PJ01.
+`npm test` checks the entry-point syntax and runs a real HTTP/MongoDB startup test. The test verifies concurrent first requests, a 503 response when MongoDB cannot connect, and recovery on a later request. It starts a disposable local MongoDB process and does not use Atlas or shared data.

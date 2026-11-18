@@ -5,6 +5,31 @@ Raw API field shapes remain a separate reference from the pinned backend at comm
 
 The backend sends MongoDB IDs as strings in JSON. Login and registration responses use `id`. `/auth/me`, equipment records, and rental records use `_id`. Keep request data separate from read data. Rental input sends an ID in the field named `equipment`. Date inputs use `YYYY-MM-DD`. Dates returned by the API are ISO date-time strings.
 
+## Implemented interface review
+
+The continuation uses `frontend/interface.ts` and `frontend/src/libs/api.ts`.
+The code was compared with the pinned backend controllers and exercised against
+its real routes and a disposable MongoDB database. The declarations below retain
+the original proposal; these are the intentional implementation differences:
+
+- API helpers unwrap `data`: list calls return `Equipment[]` / `Rental[]`, and
+  record calls return the record. Pages do not read a second `.data` property.
+- List `count` is not exposed because the UI renders the full returned array.
+- Equipment writes accept `EquipmentInput` or `EquipmentUpdate`; rental updates
+  accept `RentalUpdate`. Shared request fields keep the backend's names.
+- NextAuth restores its JWT session directly. It does not currently call
+  `/auth/me`, so there is no implemented `authApi.me` or `_id` mapping path.
+- Equipment reads are public and omit bearer tokens. Protected HTTP 401 responses
+  end the NextAuth session and navigate Home; login 401 remains inline.
+- `EquipmentForm` handles both Add and Save. `RentalForm` serves member creation
+  and both roles' edits; the edit page supplies the admin owner label.
+- `DeleteRecordButton` shares a native modal dialog across equipment and rental
+  deletion. List pages remove successful deletions from their local arrays;
+  detail pages navigate to the list.
+
+Both teammates should still review these interfaces before merging. Automated
+verification is recorded in the [handoff](CONTRIBUTION-HANDOFF.md#continuation-checkpoint).
+
 ## Domain and request types
 
 ```ts
@@ -325,6 +350,7 @@ Do not submit an incomplete range. The page adds the fixed equipment ID when it 
 The proposed `libs/rental-cost.ts` calculates `days` from calendar dates, with both dates included.
 For valid dates, `days = (returnDateUTC - startDateUTC) / 86400000 + 1`. Calculate `rentalRate × days`, then round that final total once to two decimals with halfway values rounded upward.
 Use UTC calendar dates for this calculation, not local elapsed hours. Quantity is not a multiplier.
+The allowed range is at most seven inclusive days: June 10–16 is valid and June 10–17 is rejected on creation and editing. The frontend calendar and local backend enforce the same limit.
 Return no cost for an incomplete or invalid range, or a missing equipment rate.
 A rate of 100 produces 100 THB for June 10–10 and 300 THB for June 10–12.
 

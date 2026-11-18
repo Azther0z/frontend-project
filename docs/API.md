@@ -2,10 +2,13 @@
 
 An API is the set of requests that the frontend sends to the backend.
 Use the [supplied backend](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent).
-This contract comes from commit [`be18df9`](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent/tree/be18df9967be7e0a742b5a5ae25f07966dc4e1d4).
+This contract is based on commit [`be18df9`](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent/tree/be18df9967be7e0a742b5a5ae25f07966dc4e1d4).
 
 This is a backend reference, not the source for product screens. The updated [Figma design](FIGMA.md) defines screens and product behavior.
 The user asked to retain backend quantity and date limits in the docs without adding them to Figma.
+
+The local backend overrides the upstream duration limit following the user's November 18 clarification: count both start and return dates, with a maximum of seven calendar days.
+June 10–16 is valid; June 10–17 is rejected for both creation and editing.
 
 ## Connection
 
@@ -70,8 +73,8 @@ Logout does not revoke existing tokens. Clear the frontend token and user too.
 
 - Quantity is an integer from 1 to 3 and cannot exceed available quantity.
 - Start is today or later. The backend uses UTC for today.
-- Return is on or after start, with at most seven elapsed days.
-- Same-day rentals and dates exactly seven days apart pass.
+- Return is on or after start, with at most seven inclusive calendar days.
+- Same-day rentals count as one day. The latest return date is six dates after the start.
 - Each request is tested against stock on its own. Requests do not reduce stock.
 - Overlapping requests can total more than available stock.
 
@@ -98,7 +101,7 @@ This does not require a new API range field.
 The agreed cost formula is `rentalRate × days`, counting both calendar dates. Same-day rental counts as one day.
 Quantity is not a multiplier. The backend model and controller return no cost field and perform no cost calculation.
 The proposed frontend derives the displayed total without changing the raw API contract.
-The backend allows seven elapsed days, which contains eight billable calendar days under this inclusive cost rule.
+The local backend and calendar allow at most seven inclusive calendar days, matching the cost day count. June 10–16 counts as seven days; June 10–17 is rejected.
 
 The November 16 interview settled these integration choices:
 

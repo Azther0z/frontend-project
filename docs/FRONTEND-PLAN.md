@@ -1,6 +1,6 @@
 # Frontend plan
 
-This plan records the confirmed technical foundation and proposed component interfaces for a Next.js and TypeScript frontend. Application code and shared type files do not exist yet.
+This plan records the confirmed technical foundation and proposed component interfaces for a Next.js and TypeScript frontend. The frontend and shared types now exist under `frontend/`; the folder and component interfaces below retain the original design proposals. See [the implementation checkpoint](CONTRIBUTION-HANDOFF.md#continuation-checkpoint) for verified behavior.
 Screens and product behavior follow the updated [Figma design](FIGMA.md). Backend details follow [API.md](API.md).
 The user confirmed the technical foundation on November 18, 2026. Component interfaces and the team split remain proposals.
 
@@ -23,6 +23,8 @@ Backend constraints remain separate technical references.
 - Login, registration, and logout always go to Home. Do not remember a destination or selected item through account access.
 - Login to request opens Login without a return destination. After signing in, the member opens Equipment and selects the item again.
 - The class demo is desktop only. Mobile layouts are outside this scope.
+
+On November 18, 2026, the user clarified the maximum rental duration as seven inclusive calendar days. June 10–16 is valid; June 10–17 must be rejected. This overrides the supplied backend's earlier elapsed-day boundary; the calendar, form validation, and local backend use the clarified rule.
 
 The [current-rate decision](adr/0001-calculate-cost-from-current-equipment-rate.md) records the consequence for older request totals.
 The decisions above are confirmed. On November 18, 2026, the user also confirmed these implementation decisions:
@@ -88,7 +90,7 @@ Add the NextAuth handler under `src/app/api/auth/[...nextauth]/` and keep its co
 The folder tree is a guide. Add files when the implementation needs them.
 Keep frontend and backend dependencies, lockfiles, and configuration separate. Keep private environment values in ignored files.
 `NEXT_PUBLIC_API_BASE_URL` contains the API origin without `/api/v1`. It contains no secrets.
-For one-domain routing, use an empty base URL and relative `/api/v1` requests.
+The current credentials login requires an absolute backend origin because it also runs on the Next.js server. One-domain routing would need separate server-origin configuration; do not set an empty API origin.
 
 Poom owns the proposed backend copy. Its source is commit [`be18df9`](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent/tree/be18df9967be7e0a742b5a5ae25f07966dc4e1d4).
 Record the source and revision, preserve its license and notices, and exclude `.git`, installed dependencies, and secrets.
@@ -164,7 +166,7 @@ Rental reads contain populated equipment and user objects. Either reference can 
 For edits, bind `Rental.equipment?._id` and preserve response calendar dates with `.slice(0, 10)`.
 
 Do not replace missing or inactive equipment through a new selector. Figma has no such control.
-Keep the backend's availability and date validation unchanged. Use normal form error feedback when an update is rejected.
+Keep the backend's availability validation unchanged. Apply the confirmed seven-inclusive-day duration limit and existing UTC/past-date checks. Use normal form error feedback when an update is rejected.
 Do not add availability-specific edit restrictions or controls in the frontend. A past start date must change to a valid new date range before saving.
 
 Use the reference project's NextAuth credentials login pattern with a JWT session and a `NextAuthProvider`.

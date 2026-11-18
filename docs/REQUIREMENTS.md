@@ -63,13 +63,14 @@ These constraints come from the pinned [backend contract](API.md), not from Figm
 
 - Rental quantity is a whole number from one to three and cannot exceed the selected equipment quantity.
 - The start date is today or later. The backend uses UTC for today.
-- The return date is on or after the start date and at most seven elapsed days later.
-- Same-day rentals and dates exactly seven days apart pass backend validation.
+- The return date is on or after the start date, with at most seven inclusive calendar days.
+- Same-day rentals count as one day. The latest return date is six dates after the start.
 - Each request uses the available quantity independently. Requests do not reserve or reduce stock.
 - Members read, edit, and delete their own requests. Admins read, edit, and delete all requests.
 
-The backend duration limit and the cost day count use different rules.
-A range seven elapsed days apart contains eight billable calendar days under the agreed inclusive formula.
+The user clarified the duration rule on November 18, 2026: duration validation and cost both count the start and return dates.
+June 10–16 is seven days and is allowed; June 10–17 is eight days and is rejected.
+This overrides the supplied backend's earlier elapsed-day limit in the local backend, frontend, and API documentation.
 These quantity and date limits are intentionally absent from the Figma frames.
 
 ## Confirmed implementation details

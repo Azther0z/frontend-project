@@ -1,7 +1,7 @@
 # Team contribution and implementation handoff
 
 This guide retains the proposed work split, review duties, and implementation handoff. These are team proposals, not facts from Figma.
-The updated [Figma design](FIGMA.md) is the only source for screens and product behavior.
+The updated [Figma design](FIGMA.md) defines the base screens and product behavior. The [November 18 decisions](FRONTEND-PLAN.md#confirmed-decisions) supplement it.
 The team must accept shared interfaces before both workstreams depend on them.
 
 ## Proposed ownership
@@ -39,6 +39,9 @@ Record the test action and result with the implementation work. Design screensho
 Reviewing a design or plan does not satisfy this handoff condition. Do not build dependent admin integration until the shared interfaces are accepted and the member path passes.
 
 The class demo intentionally keeps Member and Admin registration. Keep backend authentication, role checks, and ownership checks as the security authority.
+
+The user confirmed the simple structure, NextAuth, feedback, and calendar behavior on November 18, 2026.
+See the [frontend plan](FRONTEND-PLAN.md#confirmed-decisions). Detailed TypeScript interfaces still need implementation review.
 
 ## Build order
 

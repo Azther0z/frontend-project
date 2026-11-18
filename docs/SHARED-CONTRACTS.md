@@ -1,6 +1,6 @@
 # Shared contracts
 
-These TypeScript contracts are a technical proposal. Screens and product behavior follow the updated [Figma design](FIGMA.md).
+These TypeScript contracts are a technical proposal. Screens and product behavior follow the updated [Figma design](FIGMA.md) and the [November 18 decisions](FRONTEND-PLAN.md#confirmed-decisions).
 Raw API field shapes remain a separate reference from the pinned backend at commit [`be18df9`](https://github.com/SWDevPrac2-69-1/PJ02-EquipmentRent/tree/be18df9967be7e0a742b5a5ae25f07966dc4e1d4).
 
 The backend sends MongoDB IDs as strings in JSON. Login and registration responses use `id`. `/auth/me`, equipment records, and rental records use `_id`. Keep request data separate from read data. Rental input sends an ID in the field named `equipment`. Date inputs use `YYYY-MM-DD`. Dates returned by the API are ISO date-time strings.
@@ -185,10 +185,13 @@ export declare const rentalsApi: {
 };
 ```
 
-The route paths are listed in [API.md](API.md). Protected calls receive the token and send `Authorization: Bearer <token>`. The backend returns `{ success: false, error: string }`. Normalize this response to `ApiError` with the HTTP status and readable message. A 401 from a protected call clears the context and session storage. A login 401 remains an account form error. A 403 stays an access error. Backend authorization remains the authority. Hiding a control is not access control.
+The route paths are listed in [API.md](API.md). Protected calls receive the token and send `Authorization: Bearer <token>`. The backend returns `{ success: false, error: string }`. Normalize this response to `ApiError` with the HTTP status and readable message. A 401 from a protected call ends the NextAuth session. A login 401 remains an account form error. A 403 stays an access error. Backend authorization remains the authority. Hiding a control is not access control.
 
-## Auth context and component proposals
+## NextAuth integration and component proposals
 
+Use NextAuth session APIs and `NextAuthProvider` instead of a custom authentication context.
+Extend NextAuth session and JWT types explicitly for the backend token, user ID, and role during implementation.
+The API helper declarations describe backend calls, not a separate authentication store.
 These interfaces support the Figma routes and fields. They do not define additional product screens.
 `RegisterFormValues` keeps password confirmation separate from `RegisterInput`.
 `DateRangeValue` describes one visible calendar input, not two visible date inputs.
@@ -196,23 +199,8 @@ These interfaces support the Figma routes and fields. They do not define additio
 ```tsx
 import type { ReactNode } from "react";
 
-export interface AuthContextValue {
-  user: AuthUser | null;
-  token: string | null;
-  loading: boolean;
-  restoreError: string | null;
-  retrySession(): Promise<void>;
-  login(input: LoginInput): Promise<void>;
-  register(input: RegisterInput): Promise<void>;
-  logout(): Promise<void>;
-}
-
 export interface AccessGuardProps {
   roles: Role[];
-  children: ReactNode;
-}
-
-export interface AuthProviderProps {
   children: ReactNode;
 }
 
@@ -301,7 +289,7 @@ export interface RentalListProps {
   onDelete(rental: Rental): Promise<void>;
 }
 
-// Proposed presentation behavior. Figma does not yet specify this dialog.
+// Cancel/Delete confirmation was confirmed on November 18, 2026.
 export interface ConfirmDialogProps {
   open: boolean;
   title: string;
@@ -326,13 +314,15 @@ Only members use `RentalForm` in create mode. Both roles use edit mode for reque
 Rental View actions navigate to `/rentals/[id]`, rather than expanding details inside the list.
 
 Pages own API calls, navigation, and refresh after a successful change. Creation and editing open the record detail; deletion returns to its list.
-Forms own field state. Retaining entered values after an API failure remains an implementation proposal, not an agreed design requirement.
+Forms own field state. Preserve entered values after an API failure.
+Show inline loading and error messages. Disable submission while saving. Confirm deletion with Cancel and Delete.
+The single range input opens a one-month popup with previous/next controls and start-then-end selection.
 A complete date range supplies `RentalFormInput.startDate` and `RentalFormInput.returnDate`.
 Do not submit an incomplete range. The page adds the fixed equipment ID when it builds `RentalInput`.
 
 ## Cost calculation and integration limits
 
-The proposed `lib/rental-cost.ts` calculates `days` from calendar dates, with both dates included.
+The proposed `libs/rental-cost.ts` calculates `days` from calendar dates, with both dates included.
 For valid dates, `days = (returnDateUTC - startDateUTC) / 86400000 + 1`. Calculate `rentalRate × days`, then round that final total once to two decimals with halfway values rounded upward.
 Use UTC calendar dates for this calculation, not local elapsed hours. Quantity is not a multiplier.
 Return no cost for an incomplete or invalid range, or a missing equipment rate.
@@ -349,6 +339,6 @@ A missing or inactive item cannot be replaced through the Figma form because it 
 Keep backend availability validation unchanged and display rejections through normal form error feedback.
 Do not add availability-specific frontend controls. The backend rejects past start dates during updates, so saving requires a valid new date range.
 
-The authentication and feedback proposals remain in [FRONTEND-PLAN.md](FRONTEND-PLAN.md).
+The confirmed authentication and feedback decisions are recorded in [FRONTEND-PLAN.md](FRONTEND-PLAN.md).
 A protected HTTP 401 clears the local session. A login HTTP 401 remains a form error. HTTP 403 remains an access error.
 The API has no approval state, rental status, or pagination contract. These interfaces add none.

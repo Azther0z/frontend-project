@@ -1,6 +1,6 @@
 # System requirements
 
-The updated [Figma design](https://www.figma.com/design/llQS6sjdaGY3OpBfXf7NVh/SW-DEV-PRAC-2?node-id=0-1) is the only source for screens and product behavior.
+The updated [Figma design](https://www.figma.com/design/llQS6sjdaGY3OpBfXf7NVh/SW-DEV-PRAC-2?node-id=0-1) defines the base screens and product behavior. The [November 18 decisions](FRONTEND-PLAN.md#confirmed-decisions) supplement it.
 The [Figma guide](FIGMA.md) records the reviewed frames and design evidence.
 The backend limits below are separate integration constraints retained at the user's request. Course PDFs do not define product requirements.
 This page describes the November 16 saved Figma revision, including its agreed behavior note. The [frontend plan](FRONTEND-PLAN.md#confirmed-decisions) separates confirmed scope from technical proposals.
@@ -72,10 +72,11 @@ The backend duration limit and the cost day count use different rules.
 A range seven elapsed days apart contains eight billable calendar days under the agreed inclusive formula.
 These quantity and date limits are intentionally absent from the Figma frames.
 
-## Open design details
+## Confirmed implementation details
 
-Figma does not define deletion confirmation or loading, empty, error, and success states.
-It establishes one date-range calendar input but does not define the detailed popup.
-These presentation details were not agreed during the interview and are not added to this design update.
-The [frontend plan](FRONTEND-PLAN.md) separates technical proposals from these open design details.
+The user confirmed inline loading and error messages, preserved form values after failures, and disabled submission while saving on November 18, 2026.
+Deletion requires a confirmation with Cancel and Delete.
+The single range input opens a one-month calendar popup with previous/next controls and start-then-end selection.
+These decisions supplement Figma. They do not establish that the saved design or screenshots contain these details.
+The [frontend plan](FRONTEND-PLAN.md#confirmed-decisions) records the full decisions. Empty and success state wording remains an implementation detail.
 The [API guide](API.md#figma-integration) records cases where the fixed equipment form cannot satisfy backend validation.

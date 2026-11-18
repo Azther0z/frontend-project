@@ -109,7 +109,7 @@ The November 16 interview settled these integration choices:
 - A past start date requires a valid new date range before an update can pass.
 - Keep Member and Admin registration for the class demo.
 
-Use normal form error feedback when the API rejects an update. The exact feedback presentation remains a design detail.
+Use normal form error feedback when the API rejects an update. The user confirmed inline loading/errors, preserved form values after failures, disabled submission while saving, and Cancel/Delete confirmation on November 18, 2026.
 
 ## Code references
 

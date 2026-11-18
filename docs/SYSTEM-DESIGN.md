@@ -1,6 +1,6 @@
 # System design
 
-This document is a retained technical proposal. The updated [Figma design](FIGMA.md) is the only source for screens and product behavior.
+This document records the confirmed frontend foundation and retained system proposals. The updated [Figma design](FIGMA.md) defines the base screens and product behavior. The [November 18 decisions](FRONTEND-PLAN.md#confirmed-decisions) supplement it.
 The backend and database details below are separate integration references. The course PDFs do not define product requirements.
 
 The proposed system has a Next.js frontend, an Express API, and MongoDB. The hosting layout remains open. Poom owns that choice. The diagram shows logical responsibilities, not a deployed setup.
@@ -11,26 +11,28 @@ flowchart LR
     Visitor[Guest or signed-in user]
     subgraph Web[Browser]
         UI[Next.js React UI]
-        Auth[AuthProvider\nuser and token state]
-        Store[(sessionStorage\ntoken for this tab)]
+        Auth[NextAuthProvider\nsession state]
         Client[Browser API client]
         UI --> Auth
-        Auth <--> Store
     end
-    Next[Next.js frontend\nserves UI]
+    Next[Next.js frontend\nUI and NextAuth handler]
     Express[Express API\n/api/v1]
     DB[(MongoDB)]
     Visitor --> UI
     Next -->|HTML and assets| UI
+    Auth <-->|session| Next
+    Next -->|credentials login| Express
     UI --> Client
     Auth -->|token| Client
     Client -->|JSON, optional Bearer token\npublic requests omit token| Express
     Express -->|read and write| DB
 ```
 
-Next.js and Express are separate logical services. Their hosting arrangement remains open. Next.js serves the interface. React runs in the browser after the page loads. The browser restores the tab token and the API client sends `/auth/me` and other protected requests to Express with `Authorization: Bearer <token>`. Public requests omit the token. The Next.js server does not make these authenticated API calls.
+Next.js and Express are separate logical services. Their hosting arrangement remains open. Next.js serves the interface. React runs in the browser after the page loads. NextAuth manages the session through its Next.js handler. The credentials handler calls backend login.
+Protected API helpers send the backend token with `Authorization: Bearer <token>`. Public requests omit the token.
+The diagram groups session handling logically. It does not describe cookie storage or every request between the browser and NextAuth.
 
-The frontend needs a public API base URL. MongoDB credentials and `JWT_SECRET` stay on the backend.
+The frontend needs an API base URL and private NextAuth server configuration. MongoDB credentials and backend `JWT_SECRET` stay on the backend.
 
 ## Responsibilities
 

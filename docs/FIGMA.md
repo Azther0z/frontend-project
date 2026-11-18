@@ -1,6 +1,6 @@
 # Figma source and screen inventory
 
-The updated [SW DEV PRAC 2 design](https://www.figma.com/design/llQS6sjdaGY3OpBfXf7NVh/SW-DEV-PRAC-2?node-id=0-1) is the only source for screens and product behavior.
+The updated [SW DEV PRAC 2 design](https://www.figma.com/design/llQS6sjdaGY3OpBfXf7NVh/SW-DEV-PRAC-2?node-id=0-1) defines the base screens and product behavior. The [November 18 decisions](FRONTEND-PLAN.md#confirmed-decisions) supplement it.
 The page is `UI Flow Design`. The file key is `llQS6sjdaGY3OpBfXf7NVh`.
 The review date is November 16, 2026, in Asia/Bangkok.
 
@@ -13,7 +13,8 @@ This guide and its screenshots are records of that source. They do not replace t
 Screens, routes, visible fields, and visible actions follow Figma.
 The [requirements](REQUIREMENTS.md) describe those screens in text.
 The [API guide](API.md) records the supplied backend separately. Backend quantity and date limits remain in the docs at the user's request.
-Technical choices and the proposed team split remain separate proposals. The 18 course PDFs remain reference files.
+The [frontend plan](FRONTEND-PLAN.md#confirmed-decisions) records the technical foundation and additional feedback/calendar decisions confirmed on November 18, 2026.
+These decisions supplement Figma without changing the saved design evidence. The team split remains a proposal. The 18 course PDFs remain reference files.
 
 ## Saved design updates
 

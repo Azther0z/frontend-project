@@ -1,8 +1,8 @@
 # Frontend plan
 
-This is a technical proposal for a Next.js and TypeScript frontend. Application code and shared type files do not exist yet.
+This plan records the confirmed technical foundation and proposed component interfaces for a Next.js and TypeScript frontend. Application code and shared type files do not exist yet.
 Screens and product behavior follow the updated [Figma design](FIGMA.md). Backend details follow [API.md](API.md).
-The stack, component boundaries, authentication storage, and team split below are implementation proposals, not facts from Figma.
+The user confirmed the technical foundation on November 18, 2026. Component interfaces and the team split remain proposals.
 
 ## Confirmed decisions
 
@@ -25,8 +25,18 @@ Backend constraints remain separate technical references.
 - The class demo is desktop only. Mobile layouts are outside this scope.
 
 The [current-rate decision](adr/0001-calculate-cost-from-current-equipment-rate.md) records the consequence for older request totals.
-The decisions above are confirmed. Additional feedback controls, deletion dialogs, and calendar popup design were not agreed in this interview.
-Keep existing technical proposals separate from the confirmed scope. Those presentation features are absent from this Figma update.
+The decisions above are confirmed. On November 18, 2026, the user also confirmed these implementation decisions:
+
+- Keep the code as simple as the [reference project](https://github.com/Azther0z/swdevprac2-69-1-a12-swdevprac2-69-1-azther0z).
+- Use Next.js App Router, TypeScript, Tailwind, small direct `fetch` helpers, shared interfaces, and local form state.
+- Use NextAuth for login. This replaces the earlier React context and per-tab `sessionStorage` authentication proposal.
+- Store rentals in the supplied backend. Do not add a Redux rental store.
+- Show loading and error messages inline. Preserve entered values after failures and disable submission while saving.
+- Show a confirmation with Cancel and Delete before deleting a record.
+- Use one calendar popup that shows one month, with previous and next month controls.
+- Select the start date and then the end date through the single range input.
+
+These decisions supplement the saved Figma design. They are not evidence of changes to Figma or an implemented application.
 
 The user requested a course PDF check before deciding guest access.
 The [project topic PDF](pdf/6901_Project_Topics-957520-17911698720803.pdf), page 3, says all users can view equipment information.
@@ -36,8 +46,8 @@ Page 1 explicitly permits backend customization and additional functionality.
 
 ## Technology and structure
 
-The retained proposal uses Next.js App Router, TypeScript, Tailwind utility classes, and `fetch`.
-Forms keep local state. React context shares authentication state. Redux is not required by this proposal.
+The confirmed foundation uses Next.js App Router, TypeScript, Tailwind utility classes, and `fetch`.
+Forms keep local state. NextAuth manages login sessions. Rentals use the backend without a Redux rental store.
 Use semantic HTML elements and the English labels shown in Figma.
 
 ```text
@@ -62,20 +72,20 @@ frontend/
 │   │           ├── page.tsx
 │   │           └── edit/page.tsx
 │   ├── components/
-│   │   ├── shared/       # AppNav, AccessGuard, Feedback; proposed ConfirmDialog
-│   │   ├── auth/         # AuthProvider, LoginForm, RegisterForm
-│   │   ├── equipment/    # EquipmentList, EquipmentCard, EquipmentDetail, EquipmentForm
-│   │   └── rentals/      # RentalList, RentalDetails, RentalForm, DateRangeInput
-│   ├── lib/
-│   │   ├── api/          # client.ts, auth.ts, equipment.ts, rentals.ts
-│   │   ├── rental-cost.ts
-│   │   └── validation.ts
-│   └── types/            # user.ts, equipment.ts, rental.ts, api.ts
+│   │   ├── AppNav.tsx
+│   │   ├── LoginForm.tsx
+│   │   ├── RentalForm.tsx
+│   │   └── DateRangeInput.tsx  # Other shared forms and views stay in this folder
+│   ├── libs/                # Small fetch helpers, rental-cost.ts, and validation.ts
+│   └── providers/           # NextAuthProvider.tsx
+├── interface.ts             # Shared domain, request, and response interfaces
 ├── public/
 ├── package.json
 └── .env.example
 ```
 
+Add the NextAuth handler under `src/app/api/auth/[...nextauth]/` and keep its configuration beside the handler.
+The folder tree is a guide. Add files when the implementation needs them.
 Keep frontend and backend dependencies, lockfiles, and configuration separate. Keep private environment values in ignored files.
 `NEXT_PUBLIC_API_BASE_URL` contains the API origin without `/api/v1`. It contains no secrets.
 For one-domain routing, use an empty base URL and relative `/api/v1` requests.
@@ -124,7 +134,7 @@ The proposed interfaces are in [SHARED-CONTRACTS.md](SHARED-CONTRACTS.md).
 | Component | Proposed responsibility |
 |---|---|
 | `AppNav` | Guest Home/Equipment/Register/Login links, signed-in links, admin indicator, and logout callback |
-| `AuthProvider` | Shared user, token, session restoration, and account functions |
+| `NextAuthProvider` | NextAuth session state for client components |
 | `AccessGuard` | Wait for authentication and enforce the page's allowed roles |
 | `LoginForm` | Email and password |
 | `RegisterForm` | Name, email, telephone, role, password, and password confirmation |
@@ -134,7 +144,7 @@ The proposed interfaces are in [SHARED-CONTRACTS.md](SHARED-CONTRACTS.md).
 | `RentalList` / `RentalDetails` | Request summaries and details, with owner labels in the admin variant |
 | `RentalForm` | Fixed equipment, quantity, one date-range calendar input, cost, and Rent or Save |
 | `DateRangeInput` | One visible input and a calendar that selects both start and return dates |
-| `Feedback` / `ConfirmDialog` | Proposed feedback and deletion confirmation, which Figma does not yet specify |
+| `Feedback` / `ConfirmDialog` | Confirmed inline loading/errors and Cancel/Delete confirmation |
 
 The registration form compares Password and Confirm Password before submission. It sends only backend registration fields.
 The password confirmation stays in the form and does not become a backend field.
@@ -146,7 +156,7 @@ Quantity is not a cost multiplier. The frontend derives displayed cost because t
 Use the current equipment rate, including for older requests. Round the final total once to two decimals, with halfway values rounded upward.
 Keep that display value separate from API request and response types.
 
-## Backend data and authentication proposal
+## Backend data and confirmed authentication foundation
 
 Use the backend field names in [API.md](API.md). Convert quantity inputs to numbers before submission.
 Keep selected dates as `YYYY-MM-DD` strings. Keep display values separate from request inputs.
@@ -157,26 +167,31 @@ Do not replace missing or inactive equipment through a new selector. Figma has n
 Keep the backend's availability and date validation unchanged. Use normal form error feedback when an update is rejected.
 Do not add availability-specific edit restrictions or controls in the frontend. A past start date must change to a valid new date range before saving.
 
-The retained authentication proposal uses React context and `sessionStorage` for a token scoped to the current tab.
-After browser loading, restore the token and call `/auth/me` before protected data loads.
+Use the reference project's NextAuth credentials login pattern with a JWT session and a `NextAuthProvider`.
+The credentials handler calls the supplied backend login endpoint. Keep the backend token in the NextAuth session flow.
+Map the backend user and role explicitly. Do not copy the reference's untyped session casts.
 Map `_id` from `/auth/me` to the frontend user's `id`. Login and registration already return `id`.
-API functions receive the token as an argument. The client sends `Authorization: Bearer <token>` on protected calls.
-Public API calls omit the token. The guest equipment screens use those public endpoints.
+API helpers receive the backend token and send `Authorization: Bearer <token>` on protected calls.
+Public equipment calls omit the token. Do not add a separate `sessionStorage` token store.
+Registration calls the backend registration endpoint. Complete the NextAuth sign-in flow before navigating to Home.
+The exact callback types and registration integration remain implementation details to verify against the installed NextAuth version.
 
-On a protected HTTP 401 response, clear the local token and user. A login HTTP 401 stays a form error.
-On a session-restore network failure, keep the token and offer a retry while protected content stays hidden.
-Logout clears local state even if the request fails. HTTP 403 remains an access error.
+A protected HTTP 401 ends the frontend session. A login HTTP 401 stays a form error.
+HTTP 403 remains an access error. Failed requests show inline errors and preserve entered values.
+Logout ends the NextAuth session even if the backend logout request fails. Account navigation always finishes at Home.
+Keep NextAuth server secrets in ignored environment files. Backend database and signing secrets remain on the backend.
 The class demo intentionally keeps Member and Admin registration, matching the supplied backend and the agreed design.
 
 ## React boundaries and open details
 
-Keep route files small. Interactive forms, browser data loaders, and authentication context use Client Components with `"use client"`.
-The root layout remains a Server Component and renders the client authentication provider around page content.
+Keep route files small. Interactive forms, browser data loaders, and the NextAuth provider use Client Components with `"use client"`.
+The root layout remains a Server Component and renders the client NextAuth provider around page content.
 Do not read browser token storage during server rendering. Reload affected records after successful API changes.
 
-Figma does not specify feedback states or deletion confirmation.
-The feedback, retry, and confirmation behaviors above are technical proposals. Their exact presentation needs design agreement.
-The Figma calendar wireframe establishes one range input, not a complete calendar popup. The confirmed class demo scope does not require mobile layouts.
+The November 18 decisions specify inline loading/errors, preserved values after failures, disabled submission while saving, and Cancel/Delete confirmation.
+The calendar popup shows one month with previous/next controls and start-then-end selection.
+These details supplement the Figma wireframe. Empty and success state wording remains a routine implementation detail.
+The confirmed class demo scope does not require mobile layouts.
 
 ## Proposed implementation order
 
